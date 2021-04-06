@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1076637775916",
+    "project_id": "datale-8ece8",
+    "storage_bucket": "datale-8ece8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1076637775916:android:26cd4c43642217f09f7989",
+        "android_client_info": {
+          "package_name": "com.example.datale"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1076637775916-ihn9nubp66id7g1tq1cbpfhq1g09snht.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoUup6HHaS8d1c6YJ-3kyLAEO3sxsn0Gs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1076637775916-ihn9nubp66id7g1tq1cbpfhq1g09snht.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
