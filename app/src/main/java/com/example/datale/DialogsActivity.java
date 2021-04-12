@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,20 +40,6 @@ public class DialogsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialogs);
 
-//        ArrayList<TimelineAdapter.TimelineDiaryEntry> entries = new ArrayList<>();
-//        entries.add(new TimelineAdapter.TimelineDiaryEntry("Crazy day", "Feb 20, 2020", ResourcesCompat.getDrawable(getResources(), R.drawable.ic_calendar, null), Color.parseColor("#3E50B4")));
-//        entries.add(new TimelineAdapter.TimelineDiaryEntry("Wandering in paris", "Feb 28, 2020", ResourcesCompat.getDrawable(getResources(), R.drawable.ic_calendar, null), Color.parseColor("#3E50B4")));
-//        entries.add(new TimelineAdapter.TimelineDiaryEntry("Girls trip", "Mar 20, 2020", ResourcesCompat.getDrawable(getResources(), R.drawable.ic_calendar, null), Color.parseColor("#B43E93")));
-//        entries.add(new TimelineAdapter.TimelineDiaryEntry("Want to go back", "Apr 4, 2020", ResourcesCompat.getDrawable(getResources(), R.drawable.ic_calendar, null), Color.parseColor("#3E50B4")));
-//        entries.add(new TimelineAdapter.TimelineDiaryEntry("Kayaking", "Apr 20, 2020", ResourcesCompat.getDrawable(getResources(), R.drawable.ic_calendar, null), Color.parseColor("#3E50B4")));
-//        entries.add(new TimelineAdapter.TimelineDiaryEntry("What am I doing", "May 16, 2020", ResourcesCompat.getDrawable(getResources(), R.drawable.ic_calendar, null), Color.parseColor("#3E50B4")));
-
-//        RecyclerView recyclerView = findViewById(R.id.recycler_view_timeline);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        TimelineAdapter adapter = new TimelineAdapter(entries);
-//        recyclerView.setAdapter(adapter);
-
-        // calendar
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,7 +47,6 @@ public class DialogsActivity extends AppCompatActivity {
             }
         });
 
-        // location
         findViewById(R.id.button4).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,7 +54,6 @@ public class DialogsActivity extends AppCompatActivity {
             }
         });
 
-        // mood
         findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,8 +61,6 @@ public class DialogsActivity extends AppCompatActivity {
             }
         });
 
-
-        // recording
         findViewById(R.id.button_audio).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -327,13 +310,13 @@ public class DialogsActivity extends AppCompatActivity {
             buttonPlay.setEnabled(true);
             buttonPlay.setAlpha(1f);
             imageViewButtonOutline.setAlpha(0f);
-            viewIconStatus.setBackground(getResources().getDrawable(R.drawable.ic_not_recording));
+            viewIconStatus.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_not_recording, null));
             textViewStatus.setText(isNotRecordingText);
         } else {
             buttonPlay.setEnabled(false);
             buttonPlay.setAlpha(0.5f);
             imageViewButtonOutline.setAlpha(1f);
-            viewIconStatus.setBackground(getResources().getDrawable(R.drawable.ic_recording));
+            viewIconStatus.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_recording, null));
             textViewStatus.setText(isRecordingText);
         }
     }

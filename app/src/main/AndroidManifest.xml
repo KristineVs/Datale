@@ -12,11 +12,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <activity android:name=".TimelineActivity"></activity>
         <activity
             android:name=".DialogsActivity"
-            android:label="@string/title_activity_dialogs">
-        </activity>
+            android:label="@string/title_activity_dialogs"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,4 +24,5 @@
             </intent-filter>
         </activity>
     </application>
+
 </manifest>
