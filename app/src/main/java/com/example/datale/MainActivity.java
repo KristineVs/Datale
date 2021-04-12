@@ -45,8 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void insertUser(){
-
+    private void insertUser() {
         inputname = findViewById(R.id.inputname);
         inputabout = findViewById(R.id.inputabout);
 
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("Button Clicked");
     }
 
-    private void insertEntry(){
+    private void insertEntry() {
 
         inputentry = findViewById(R.id.inputentry);
         inputlocation = findViewById(R.id.inputlocation);
