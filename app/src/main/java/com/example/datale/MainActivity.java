@@ -2,6 +2,7 @@ package com.example.datale;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -36,13 +37,18 @@ public class MainActivity extends AppCompatActivity {
         enterbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 insertUser();
                 insertEntry();
-
             }
         });
 
+        findViewById(R.id.buttonDialogs).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, DialogsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void insertUser() {
