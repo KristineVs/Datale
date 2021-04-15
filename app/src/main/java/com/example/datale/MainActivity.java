@@ -57,6 +57,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        findViewById(R.id.Entrybtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, DiaryActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void insertUser() {
