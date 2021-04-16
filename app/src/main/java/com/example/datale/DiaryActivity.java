@@ -13,6 +13,9 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -24,6 +27,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import org.w3c.dom.Text;
 
 import java.io.File;
@@ -34,6 +39,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 public class DiaryActivity extends AppCompatActivity {
@@ -41,6 +47,7 @@ public class DiaryActivity extends AppCompatActivity {
     TextView date;
     TextView location;
     ImageView mood;
+    FloatingActionButton microphone;
 
     private boolean isRecording = false;
 
@@ -52,6 +59,7 @@ public class DiaryActivity extends AppCompatActivity {
         mood = findViewById(R.id.editMood);
         location = findViewById(R.id.editLocation);
         date = findViewById(R.id.editDate);
+        microphone = findViewById(R.id.micbtn);
 
         // set date to date text view
         Date currentTime = Calendar.getInstance().getTime();
@@ -81,6 +89,43 @@ public class DiaryActivity extends AppCompatActivity {
                 openMoodDialog();
             }
         });
+
+//        microphone.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                switch (v.getId()) {
+//                    case R.id.micbtn:
+//                        openRecordingDialog();
+//                        break;
+//                    case R.id.imagebtn:
+//
+//                        break;
+//                    case R.id.videobtn:
+//
+//                        break;
+//                }
+//            }
+//        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.save_entry:
+                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void openRecordingDialog() {
@@ -208,17 +253,9 @@ public class DiaryActivity extends AppCompatActivity {
         dialog.show();
 
         Button buttonCancel = dialog.findViewById(R.id.button_dialog_mood_cancel);
-        Button buttonOk = dialog.findViewById(R.id.button_dialog_mood_ok);
         LinearLayout linearLayout = dialog.findViewById(R.id.linear_layout_emoji);
 
         buttonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-
-        buttonOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
@@ -307,7 +344,8 @@ public class DiaryActivity extends AppCompatActivity {
         DatePickerDialog datePickerDialog = new DatePickerDialog(DiaryActivity.this, R.style.DialogTheme, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-
+                Date currentDate = new GregorianCalendar(year, month - 1, dayOfMonth).getTime();
+                date.setText(DateFormat.getDateInstance().format(currentDate));
             }
         }, 2021, 2, 2);
 
