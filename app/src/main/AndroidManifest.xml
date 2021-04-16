@@ -14,9 +14,6 @@
         android:theme="@style/AppTheme">
         <activity android:name=".TimelineActivity"/>
         <activity android:name=".DiaryActivity"/>
-        <activity
-            android:name=".DialogsActivity"
-            android:label="@string/title_activity_dialogs"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

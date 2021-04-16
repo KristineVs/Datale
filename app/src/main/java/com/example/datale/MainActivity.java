@@ -42,14 +42,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.buttonDialogs).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, DialogsActivity.class);
-                startActivity(intent);
-            }
-        });
-
         findViewById(R.id.buttonTimeline).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
