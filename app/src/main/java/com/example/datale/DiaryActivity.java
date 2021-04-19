@@ -117,7 +117,6 @@ public class DiaryActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
         switch (item.getItemId()) {
             case R.id.save_entry:
                 Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
