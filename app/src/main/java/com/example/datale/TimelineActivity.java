@@ -1,46 +1,44 @@
 package com.example.datale;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Dialog;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
-import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class TimelineActivity extends AppCompatActivity {
+
+    ArrayList<Entries> entries = new ArrayList<>();
+    TimelineAdapter timelineAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
 
-        ArrayList<Entries> entries = new ArrayList<>();
         entries.add(new Entries("Crazy day", "Dublin", "Feb 20, 2020", "11:00"));
         entries.add(new Entries("Wandering in paris", "Dublin", "Feb 28, 2020", "11:00"));
         entries.add(new Entries("Girls trip", "Dublin", "Mar 20, 2020", "11:00"));
-        entries.add(new Entries("Want to go back", "Dublin", "Apr 4, 2020", "11:00"));
-        entries.add(new Entries("Kayaking", "Dublin", "Apr 20, 2020", "11:00"));
-        entries.add(new Entries("What am I doing", "Dublin", "May 16, 2020", "11:00"));
+
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view_timeline);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        TimelineAdapter adapter = new TimelineAdapter(entries);
-        recyclerView.setAdapter(adapter);
+        timelineAdapter = new TimelineAdapter(entries);
+        recyclerView.setAdapter(timelineAdapter);
     }
 
     @Override
@@ -84,14 +82,38 @@ public class TimelineActivity extends AppCompatActivity {
         });
 
         // fill spinners
-        List<String> spinnerArray =  new ArrayList<String>();
-        spinnerArray.add("item1");
-        spinnerArray.add("item2");
+        List<String> sortBySpinnerArray =  new ArrayList<>();
+        sortBySpinnerArray.add("None");
+        sortBySpinnerArray.add("Alphabet");
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerArray);
-
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sortBySpinnerArray);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        Spinner sItems = dialog.findViewById(R.id.spinner_sort_by);
-        sItems.setAdapter(adapter);
+        Spinner sortBySpinnerItems = dialog.findViewById(R.id.spinner_sort_by);
+        sortBySpinnerItems.setAdapter(adapter);
+
+        sortBySpinnerItems.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 1) {
+                    entries.add(new Entries("Want to go back", "Dublin", "Apr 4, 2020", "11:00"));
+                    entries.add(new Entries("Kayaking", "Dublin", "Apr 20, 2020", "11:00"));
+                    entries.add(new Entries("What am I doing", "Dublin", "May 16, 2020", "11:00"));
+                    Collections.sort(entries, new CustomStringComparator());
+                    timelineAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private static class CustomStringComparator implements Comparator<Entries> {
+        @Override
+        public int compare(Entries o1, Entries o2) {
+            return o1.getEentry().compareTo(o2.getEentry());
+        }
     }
 }
