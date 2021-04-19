@@ -4,6 +4,26 @@ public class Entries {
     String eentry, elocation, edate, etime;
     String eemoji, evideo, ephoto, eaudio;
 
+    public Entries() { }
+
+    public Entries(String eentry, String elocation, String edate, String etime) {
+        this.eentry = eentry;
+        this.elocation = elocation;
+        this.edate = edate;
+        this.etime = etime;
+    }
+
+    public Entries(String eentry, String elocation, String edate, String etime, String eemoji, String evideo, String ephoto, String eaudio) {
+        this.eentry = eentry;
+        this.elocation = elocation;
+        this.edate = edate;
+        this.etime = etime;
+        this.eemoji = eemoji;
+        this.evideo = evideo;
+        this.ephoto = ephoto;
+        this.eaudio = eaudio;
+    }
+
     public String getEentry() {
         return eentry;
     }
