@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -25,6 +26,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        BottomNavigationView navView = findViewById(R.id.bottomNavigationView);
+
+        navView.setBackground(null);
+        navView.getMenu().getItem(2).setEnabled(false);
 
         enterbutton = findViewById(R.id.enterbutton);
 
