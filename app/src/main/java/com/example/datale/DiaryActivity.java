@@ -1,16 +1,22 @@
 package com.example.datale;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -46,10 +52,12 @@ public class DiaryActivity extends AppCompatActivity {
 
     TextView date;
     TextView location;
-    ImageView mood;
-    FloatingActionButton microphone;
+    ImageView mood, imageView;
+    FloatingActionButton microphone, image;
 
     private boolean isRecording = false;
+    private static final int IMAGE_PICK_CODE = 1000;
+    private static final int PERMISSION_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +98,34 @@ public class DiaryActivity extends AppCompatActivity {
             }
         });
 
+        //Gallery
+        imageView = findViewById(R.id.imageView);
+        image = findViewById(R.id.imagebtn);
+
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Check permission
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                        //permission not granted
+                        String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+
+                        requestPermissions(permissions, PERMISSION_CODE);
+                    }
+                    else {
+                        pickImageFromGallery();
+                    }
+                }
+                else{
+                    pickImageFromGallery();
+                }
+
+            }
+
+        });
+
+
 //        microphone.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
@@ -106,6 +142,35 @@ public class DiaryActivity extends AppCompatActivity {
 //                }
 //            }
 //        });
+    }
+
+    private void pickImageFromGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, IMAGE_PICK_CODE);
+    }
+
+    //handle result of permission
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case PERMISSION_CODE:{
+                if (grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    pickImageFromGallery();
+                }
+                else {
+                    Toast.makeText(DiaryActivity.this, "Permission denied!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE){
+            imageView.setImageURI(data.getData());
+        }
     }
 
     @Override
