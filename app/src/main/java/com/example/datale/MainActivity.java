@@ -5,13 +5,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navView = findViewById(R.id.bottomNavigationView);
         FloatingActionButton fabAddEntry = findViewById(R.id.fab_add_entry);
 
+        navView.setBackground(null);
+        navView.getMenu().getItem(2).setEnabled(false);
+
         switchFragmentByTag(homeFragmentTag, fragmentTags[homeFragmentTag]);
 
         fabAddEntry.setOnClickListener(new View.OnClickListener() {
@@ -49,6 +64,82 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_filter, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.filter_entries:
+                showFilterDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void showFilterDialog() {
+        final Dialog dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.dialog_filter);
+        dialog.show();
+
+        final Button buttonCancel = dialog.findViewById(R.id.button_dialog_filter_cancel);
+        final Button buttonOk = dialog.findViewById(R.id.button_dialog_filter_ok);
+
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        buttonOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        // fill spinners
+        List<String> sortBySpinnerArray =  new ArrayList<>();
+        sortBySpinnerArray.add("None");
+        sortBySpinnerArray.add("Alphabet");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sortBySpinnerArray);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        Spinner sortBySpinnerItems = dialog.findViewById(R.id.spinner_sort_by);
+        sortBySpinnerItems.setAdapter(adapter);
+
+        sortBySpinnerItems.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 1) {
+                    // sorting
+
+//                    Collections.sort(entries, new CustomStringComparator());
+//                    timelineAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    // sorting alphabetically
+    private static class CustomStringComparator implements Comparator<Entries> {
+        @Override
+        public int compare(Entries o1, Entries o2) {
+            return o1.getEentry().compareTo(o2.getEentry());
+        }
     }
 
     private void switchFragmentByMenuItem(BottomNavigationView navView, MenuItem item) {
@@ -95,14 +186,16 @@ public class MainActivity extends AppCompatActivity {
             case 3:
                 if (fm.findFragmentByTag(fragmentTags[3]) != null)
                     fm.beginTransaction().show(fm.findFragmentByTag(fragmentTags[3])).commit();
-                 else
+                else
                     fm.beginTransaction().add(R.id.frame_layout_fragments, new FragmentUser(), fragmentTags[3]).commit();
                 break;
         }
 
-        if (fm.findFragmentByTag(previousFragmentTag) != null)
-            fm.beginTransaction().hide(fm.findFragmentByTag(previousFragmentTag)).commit();
+        if (!fragmentTagToShow.equals(previousFragmentTag)) {
+            if (fm.findFragmentByTag(previousFragmentTag) != null)
+                fm.beginTransaction().hide(fm.findFragmentByTag(previousFragmentTag)).commit();
 
-        previousFragmentTag = fragmentTagToShow;
+            previousFragmentTag = fragmentTagToShow;
+        }
     }
 }
