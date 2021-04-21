@@ -6,31 +6,25 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class FragmentTimeline extends Fragment {
 
-    ArrayList<Entries> entries = new ArrayList<>();
-    TimelineAdapter timelineAdapter;
+    public TimelineAdapter timelineAdapter;
 
     public FragmentTimeline() {
-    }
-
-    public static FragmentTimeline newInstance(String param1, String param2) {
-        return new FragmentTimeline();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        entries.add(new Entries("Crazy day", "Dublin", "Feb 20, 2020", "11:00"));
-        entries.add(new Entries("Wandering in paris", "Dublin", "Feb 28, 2020", "11:00"));
-        entries.add(new Entries("Girls trip", "Dublin", "Mar 20, 2020", "11:00"));
     }
 
     @Override
@@ -40,8 +34,17 @@ public class FragmentTimeline extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view_timeline);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        timelineAdapter = new TimelineAdapter(entries);
+        timelineAdapter = new TimelineAdapter(MainActivity.listOfEntries);
         recyclerView.setAdapter(timelineAdapter);
+
+        recyclerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timelineAdapter.notifyDataSetChanged();
+                Log.d("#Entry", Integer.toString(MainActivity.listOfEntries.size()));
+
+            }
+        });
 
         return view;
     }

@@ -2,6 +2,7 @@ package com.example.datale;
 
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHolder> {
 
@@ -24,8 +26,14 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        viewHolder.textViewTitle.setText(diaryEntries.get(position).getEentry());
-        viewHolder.textViewDate.setText(diaryEntries.get(position).getEdate());
+        viewHolder.textViewTitle.setText(diaryEntries.get(position).getEtitle());
+
+        Date currentDate = diaryEntries.get(position).getEdate();
+        String monthName = DateFormat.format("MMMM", currentDate).toString();
+        String day = DateFormat.format("d", currentDate).toString();
+        String year = DateFormat.format("yyyy", currentDate).toString();
+        String date = monthName + " " + day + ", " + year;
+        viewHolder.textViewDate.setText(date);
         viewHolder.imageViewIcon.setImageDrawable(null);
         viewHolder.constraintLayout.setBackgroundColor(Color.parseColor("#3E50B4"));
     }

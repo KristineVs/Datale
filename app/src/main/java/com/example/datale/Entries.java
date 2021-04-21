@@ -1,27 +1,40 @@
 package com.example.datale;
 
+import java.util.Date;
+
 public class Entries {
-    String eentry, elocation, edate, etime;
-    String eemoji, evideo, ephoto, eaudio;
+
+    String etitle, eentry, evideo, ephoto, eaudio;
+    Date edate;
+    int eemoji;
+    float latitude, longitude;
 
     public Entries() { }
 
-    public Entries(String eentry, String elocation, String edate, String etime) {
+    public Entries(String etitle, String eentry, int eemoji, String evideo, String ephoto, String eaudio, Date edate, float latitude, float longitude) {
+        this.etitle = etitle;
         this.eentry = eentry;
-        this.elocation = elocation;
-        this.edate = edate;
-        this.etime = etime;
-    }
-
-    public Entries(String eentry, String elocation, String edate, String etime, String eemoji, String evideo, String ephoto, String eaudio) {
-        this.eentry = eentry;
-        this.elocation = elocation;
-        this.edate = edate;
-        this.etime = etime;
         this.eemoji = eemoji;
         this.evideo = evideo;
         this.ephoto = ephoto;
         this.eaudio = eaudio;
+        this.edate = edate;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public Entries(String etitle, String eentry, Date edate) {
+        this.etitle = etitle;
+        this.eentry = eentry;
+        this.edate = edate;
+    }
+
+    public String getEtitle() {
+        return etitle;
+    }
+
+    public void setEtitle(String etitle) {
+        this.etitle = etitle;
     }
 
     public String getEentry() {
@@ -32,35 +45,11 @@ public class Entries {
         this.eentry = eentry;
     }
 
-    public String getElocation() {
-        return elocation;
-    }
-
-    public void setElocation(String elocation) {
-        this.elocation = elocation;
-    }
-
-    public String getEdate() {
-        return edate;
-    }
-
-    public void setEdate(String edate) {
-        this.edate = edate;
-    }
-
-    public String getEtime() {
-        return etime;
-    }
-
-    public void setEtime(String etime) {
-        this.etime = etime;
-    }
-
-    public String getEemoji() {
+    public int getEemoji() {
         return eemoji;
     }
 
-    public void setEemoji(String eemoji) {
+    public void setEemoji(int eemoji) {
         this.eemoji = eemoji;
     }
 
@@ -86,5 +75,29 @@ public class Entries {
 
     public void setEaudio(String eaudio) {
         this.eaudio = eaudio;
+    }
+
+    public Date getEdate() {
+        return edate;
+    }
+
+    public void setEdate(Date edate) {
+        this.edate = edate;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(float latitude) {
+        this.latitude = latitude;
+    }
+
+    public float getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(float longitude) {
+        this.longitude = longitude;
     }
 }

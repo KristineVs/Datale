@@ -12,12 +12,15 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,8 +37,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import org.w3c.dom.Text;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,11 +57,27 @@ import java.util.Locale;
 public class DiaryActivity extends AppCompatActivity {
 
     TextView date;
+    Date currentDate;
+
     TextView location;
-    ImageView mood, imageView;
+
+    ImageView imageView;
+    String currentImage;
+
+    TextView mood;
+    int startingEmoji = 0x1F600;
+    int currentMood = startingEmoji;
+
     FloatingActionButton microphone, image;
 
+    EditText editTextTitle;
+    EditText editTextEntry;
+
     private boolean isRecording = false;
+
+    DatabaseReference entryDbRef;
+    DatabaseReference personalDbRef;
+
     private static final int IMAGE_PICK_CODE = 1000;
     private static final int PERMISSION_CODE = 1001;
 
@@ -69,13 +91,19 @@ public class DiaryActivity extends AppCompatActivity {
         date = findViewById(R.id.editDate);
         microphone = findViewById(R.id.micbtn);
 
+        editTextTitle = findViewById(R.id.title_text);
+        editTextEntry = findViewById(R.id.editEntry);
+
+        mood.setText(new String(Character.toChars(currentMood)));
+
+        entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries");
+        personalDbRef = FirebaseDatabase.getInstance().getReference().child("Personal");
+
         // set date to date text view
         Date currentTime = Calendar.getInstance().getTime();
         String formattedDate = DateFormat.getDateInstance().format(currentTime);
+        currentDate = currentTime;
         date.setText(formattedDate);
-
-        Log.d("myLOG", currentTime.toString());
-        Log.d("myLOG", formattedDate);
 
         date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,6 +126,14 @@ public class DiaryActivity extends AppCompatActivity {
             }
         });
 
+        // Microphone
+        microphone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openRecordingDialog();
+            }
+        });
+
         //Gallery
         imageView = findViewById(R.id.imageView);
         image = findViewById(R.id.imagebtn);
@@ -110,7 +146,6 @@ public class DiaryActivity extends AppCompatActivity {
                     if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
                         //permission not granted
                         String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
-
                         requestPermissions(permissions, PERMISSION_CODE);
                     }
                     else {
@@ -124,24 +159,6 @@ public class DiaryActivity extends AppCompatActivity {
             }
 
         });
-
-
-//        microphone.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                switch (v.getId()) {
-//                    case R.id.micbtn:
-//                        openRecordingDialog();
-//                        break;
-//                    case R.id.imagebtn:
-//
-//                        break;
-//                    case R.id.videobtn:
-//
-//                        break;
-//                }
-//            }
-//        });
     }
 
     private void pickImageFromGallery() {
@@ -170,13 +187,26 @@ public class DiaryActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE){
             imageView.setImageURI(data.getData());
+
+            // getting the path of the image
+            String path = "";
+            if (getContentResolver() != null) {
+                Cursor cursor = getContentResolver().query(data.getData(), null, null, null, null);
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                    path = cursor.getString(idx);
+                    cursor.close();
+                }
+            }
+            currentImage = path;
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
+        inflater.inflate(R.menu.menu_entry, menu);
         return true;
     }
 
@@ -185,6 +215,18 @@ public class DiaryActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.save_entry:
                 Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+
+                Entries entries = new Entries();
+                entries.setEtitle(editTextTitle.getText().toString());
+                entries.setEentry(editTextEntry.getText().toString());
+                entries.setLatitude(69);
+                entries.setLongitude(69);
+                entries.setEdate(currentDate);
+                entries.setEemoji(currentMood);
+                entries.setEphoto(currentImage);
+
+                entryDbRef.push().setValue(entries);
+
                 finish();
                 return true;
             default:
@@ -251,8 +293,6 @@ public class DiaryActivity extends AppCompatActivity {
                     mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                     mediaPlayer.prepare();
                     mediaPlayer.start();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -370,6 +410,17 @@ public class DiaryActivity extends AppCompatActivity {
                 textEmojisCountConstraints.endToEnd = constraintLayout.getId();
                 textEmojisCountConstraints.horizontalBias = 0.33f * j;
                 textViewEmoji.setLayoutParams(textEmojisCountConstraints);
+
+                final int row = i;
+                final int column = j;
+                textViewEmoji.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        currentMood = unicodeEmojis[column * row + column];
+                        mood.setText(new String(Character.toChars(currentMood)));
+                        dialog.dismiss();
+                    }
+                });
             }
             linearLayout.addView(constraintLayout);
         }
@@ -408,8 +459,9 @@ public class DiaryActivity extends AppCompatActivity {
         DatePickerDialog datePickerDialog = new DatePickerDialog(DiaryActivity.this, R.style.DialogTheme, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                Date currentDate = new GregorianCalendar(year, month - 1, dayOfMonth).getTime();
-                date.setText(DateFormat.getDateInstance().format(currentDate));
+                Date currentDateDialog = new GregorianCalendar(year, month - 1, dayOfMonth).getTime();
+                currentDate = currentDateDialog;
+                date.setText(DateFormat.getDateInstance().format(currentDateDialog));
             }
         }, 2021, 2, 2);
 
