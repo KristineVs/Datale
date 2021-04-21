@@ -15,7 +15,7 @@
         android:title="" />
 
     <item
-        android:id="@+id/Profile"
+        android:id="@+id/Map"
         android:icon="@drawable/ic_baseline_map_24"
         android:title="Map" />
 

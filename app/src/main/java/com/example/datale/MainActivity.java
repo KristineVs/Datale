@@ -1,102 +1,108 @@
 package com.example.datale;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button enterbutton;
-    EditText inputname, inputabout;
-    EditText inputentry, inputlocation, inputdate, inputtime, inputemoji, inputvideo, inputphoto, inputaudio;
-    DatabaseReference entryDbRef;
-    DatabaseReference personalDbRef;
-    Entries entries;
-    User user;
+    FragmentManager fm;
+    FragmentTransaction transaction;
+
+    String previousFragmentTag;
+    int homeFragmentTag = 0;
+    String[] fragmentTags = {"timeline", "calendar", "map", "user"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        fm = getSupportFragmentManager();
+
         BottomNavigationView navView = findViewById(R.id.bottomNavigationView);
+        FloatingActionButton fabAddEntry = findViewById(R.id.fab_add_entry);
 
-        navView.setBackground(null);
-        navView.getMenu().getItem(2).setEnabled(false);
+        switchFragmentByTag(homeFragmentTag, fragmentTags[homeFragmentTag]);
 
-        enterbutton = findViewById(R.id.enterbutton);
-
-        entries = new Entries();
-        user = new User();
-
-        entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries");
-        personalDbRef = FirebaseDatabase.getInstance().getReference().child("Personal");
-
-        enterbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                insertUser();
-                insertEntry();
-            }
-        });
-
-        findViewById(R.id.buttonTimeline).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, TimelineActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        findViewById(R.id.Entrybtn).setOnClickListener(new View.OnClickListener() {
+        fabAddEntry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, DiaryActivity.class);
                 startActivity(intent);
             }
         });
+
+        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switchFragmentByMenuItem(navView, item);
+                return true;
+            }
+        });
     }
 
-    private void insertUser() {
-        inputname = findViewById(R.id.inputname);
-        inputabout = findViewById(R.id.inputabout);
-
-        user.setEname(inputname.getText().toString());
-        user.setEabout(inputabout.getText().toString());
-
-        personalDbRef.push().setValue(user);
-
-        System.out.println("Button Clicked");
+    private void switchFragmentByMenuItem(BottomNavigationView navView, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.Timeline:
+                switchFragmentByTag(0, fragmentTags[0]);
+                navView.getMenu().getItem(0).setChecked(true);
+                break;
+            case R.id.Calender:
+                switchFragmentByTag(1, fragmentTags[1]);
+                navView.getMenu().getItem(1).setChecked(true);
+                break;
+            case R.id.Map:
+                switchFragmentByTag(2, fragmentTags[2]);
+                navView.getMenu().getItem(3).setChecked(true);
+                break;
+            case R.id.User:
+                switchFragmentByTag(3, fragmentTags[3]);
+                navView.getMenu().getItem(4).setChecked(true);
+                break;
+        }
     }
 
-    private void insertEntry() {
+    private void switchFragmentByTag(int position, String fragmentTagToShow) {
+        switch (position) {
+            case 0:
+                if (fm.findFragmentByTag(fragmentTags[0]) != null)
+                    fm.beginTransaction().show(fm.findFragmentByTag(fragmentTags[0])).commit();
+                else
+                    fm.beginTransaction().add(R.id.frame_layout_fragments, new FragmentTimeline(), fragmentTags[0]).commit();
+                break;
+            case 1:
+                if (fm.findFragmentByTag(fragmentTags[1]) != null)
+                    fm.beginTransaction().show(fm.findFragmentByTag(fragmentTags[1])).commit();
+                else
+                    fm.beginTransaction().add(R.id.frame_layout_fragments, new FragmentCalendar(), fragmentTags[1]).commit();
+                break;
+            case 2:
+                if (fm.findFragmentByTag(fragmentTags[2]) != null)
+                    fm.beginTransaction().show(fm.findFragmentByTag(fragmentTags[2])).commit();
+                else
+                    fm.beginTransaction().add(R.id.frame_layout_fragments, new FragmentMap(), fragmentTags[2]).commit();
+                break;
+            case 3:
+                if (fm.findFragmentByTag(fragmentTags[3]) != null)
+                    fm.beginTransaction().show(fm.findFragmentByTag(fragmentTags[3])).commit();
+                 else
+                    fm.beginTransaction().add(R.id.frame_layout_fragments, new FragmentUser(), fragmentTags[3]).commit();
+                break;
+        }
 
-        inputentry = findViewById(R.id.inputentry);
-        inputlocation = findViewById(R.id.inputlocation);
-        inputdate = findViewById(R.id.inputdate);
-        inputtime = findViewById(R.id.inputtime);
-        inputemoji = findViewById(R.id.inputemoji);
-        inputvideo = findViewById(R.id.inputvideo);
-        inputphoto = findViewById(R.id.inputphoto);
-        inputaudio = findViewById(R.id.inputaudio);
+        if (fm.findFragmentByTag(previousFragmentTag) != null)
+            fm.beginTransaction().hide(fm.findFragmentByTag(previousFragmentTag)).commit();
 
-        entries.setEentry(inputentry.getText().toString());
-        entries.setElocation(inputlocation.getText().toString());
-        entries.setEdate(inputdate.getText().toString());
-        entries.setEtime(inputtime.getText().toString());
-        entries.setEemoji(inputemoji.getText().toString());
-        entries.setEvideo(inputvideo.getText().toString());
-        entries.setEphoto(inputphoto.getText().toString());
-        entries.setEaudio(inputaudio.getText().toString());
-
-        entryDbRef.push().setValue(entries);
-
+        previousFragmentTag = fragmentTagToShow;
     }
 }
