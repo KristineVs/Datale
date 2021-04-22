@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -172,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("#Dialog", "Cancel");
                 dialog.dismiss();
             }
         });
@@ -179,6 +181,10 @@ public class MainActivity extends AppCompatActivity {
         buttonOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("#Dialog", "OK");
+                filterEntries(currentEntriesWith);
+                sortEntries(currentSortKeyPosition);
+
                 dialog.dismiss();
             }
         });
@@ -186,7 +192,6 @@ public class MainActivity extends AppCompatActivity {
         spinnerSortBy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                sortEntries(position);
                 currentSortKeyPosition = position;
             }
 
@@ -199,8 +204,8 @@ public class MainActivity extends AppCompatActivity {
         spinnerEntriesWith.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                filterEntries(position);
                 currentEntriesWith = position;
+
             }
 
             @Override
