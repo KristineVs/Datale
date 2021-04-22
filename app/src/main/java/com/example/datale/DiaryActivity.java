@@ -28,6 +28,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -68,7 +70,9 @@ public class DiaryActivity extends AppCompatActivity {
     int startingEmoji = 0x1F600;
     int currentMood = startingEmoji;
 
-    FloatingActionButton microphone, image;
+    FloatingActionButton main, microphone, image, cam;
+    private Animation fab_open, fab_close, fab_clock, fab_anticlock;
+    Boolean isOpen= false;
 
     EditText editTextTitle;
     EditText editTextEntry;
@@ -85,6 +89,40 @@ public class DiaryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.diary_entry);
+
+        main = findViewById(R.id.main);
+        cam = findViewById(R.id.cambtn);
+        fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
+        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+        fab_clock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_clock);
+        fab_anticlock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_anti);
+
+        main.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (isOpen) {
+                    image.startAnimation(fab_close);
+                    cam.startAnimation(fab_close);
+                    microphone.startAnimation(fab_close);
+                    main.startAnimation(fab_anticlock);
+                    image.setClickable(false);
+                    cam.setClickable(false);
+                    microphone.setClickable(false);
+                    isOpen = false;
+                } else {
+                    image.startAnimation(fab_open);
+                    cam.startAnimation(fab_open);
+                    microphone.startAnimation(fab_open);
+                    main.startAnimation(fab_clock);
+                    image.setClickable(true);
+                    cam.setClickable(true);
+                    microphone.setClickable(true);
+                    isOpen = true;
+                }
+
+            }
+        });
 
         mood = findViewById(R.id.editMood);
         location = findViewById(R.id.editLocation);

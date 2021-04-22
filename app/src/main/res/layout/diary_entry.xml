@@ -20,39 +20,73 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginBottom="16dp"/>
 
-    <com.getbase.floatingactionbutton.FloatingActionsMenu
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/imagebtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:fab_addButtonColorNormal="@color/colorPrimary"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="20dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:elevation="16dp"
+        android:focusable="true"
+        android:visibility="invisible"
+        app:backgroundTint="@color/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@+id/cambtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:pressedTranslationZ="12dp"
+        app:srcCompat="@drawable/ic_image" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/cambtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="20dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:elevation="16dp"
+        android:focusable="true"
+        android:visibility="invisible"
+        app:backgroundTint="@color/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@+id/micbtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:pressedTranslationZ="12dp"
+        app:srcCompat="@drawable/ic_cam" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/micbtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="20dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:elevation="16dp"
+        android:focusable="true"
+        android:visibility="invisible"
+        app:backgroundTint="@color/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@+id/main"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:pressedTranslationZ="12dp"
+        app:srcCompat="@drawable/ic_mic" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:elevation="16dp"
+        android:focusable="true"
+        android:visibility="visible"
         android:backgroundTint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/imagebtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
-            app:fabSize="mini"
-            android:src="@drawable/ic_image"/>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/videobtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
-            app:fabSize="mini"
-            android:src="@drawable/ic_video" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/micbtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
-            app:fabSize="mini"
-            android:src="@drawable/ic_mic" />
-
-    </com.getbase.floatingactionbutton.FloatingActionsMenu>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:pressedTranslationZ="12dp"
+        app:srcCompat="@drawable/ic_add" />
 
     <TextView
         android:id="@+id/editDate"
