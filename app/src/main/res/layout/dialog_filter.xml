@@ -63,14 +63,14 @@
 
     <Spinner
         android:id="@+id/spinner_sort_by"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginStart="24dp"
         app:layout_constraintBottom_toBottomOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/textView"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
         app:layout_constraintTop_toTopOf="@+id/textView" />
 
     <TextView
@@ -85,14 +85,13 @@
 
     <Spinner
         android:id="@+id/spinner_continent"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="@+id/textView1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/textView1"
+        app:layout_constraintStart_toStartOf="@+id/spinner_sort_by"
         app:layout_constraintTop_toTopOf="@+id/textView1" />
 
     <TextView
@@ -107,14 +106,13 @@
 
     <Spinner
         android:id="@+id/spinner_entries_with"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="@+id/textView2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/textView2"
+        app:layout_constraintStart_toStartOf="@+id/spinner_sort_by"
         app:layout_constraintTop_toTopOf="@+id/textView2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

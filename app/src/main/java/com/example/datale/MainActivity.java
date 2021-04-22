@@ -2,14 +2,11 @@ package com.example.datale;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -42,6 +40,14 @@ public class MainActivity extends AppCompatActivity {
     String[] fragmentTags = {"timeline", "calendar", "map", "user"};
 
     public static ArrayList<Entries> listOfEntries = new ArrayList<>();
+    public static ArrayList<Entries> listOfEntriesBackup = new ArrayList<>();
+    public static ArrayList<Entries> listOfEntriesFiltered = new ArrayList<>();
+
+    String[] sortingKeys = {"None", "Alphabetically", "Date"};
+    public static int currentSortKeyPosition = 0;
+
+    String[] entriesWith = {"Anything", "Image", "Video", "Voice"};
+    public static int currentEntriesWith = 0;
 
     DatabaseReference entryDbRef;
     DatabaseReference personalDbRef;
@@ -79,13 +85,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 MainActivity.listOfEntries.clear();
+                MainActivity.listOfEntriesBackup.clear();
                 try {
-                    for (DataSnapshot child : dataSnapshot.getChildren())
-                        MainActivity.listOfEntries.add(child.getValue(Entries.class));
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        listOfEntries.add(child.getValue(Entries.class));
+                        listOfEntriesBackup.add(child.getValue(Entries.class));
+                    }
                 } catch (DatabaseException e) {
 
                 }
-                fragmentTimeline.timelineAdapter.notifyDataSetChanged();
+                sortEntries(currentSortKeyPosition);
             }
 
             @Override
@@ -109,6 +118,14 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        sortEntries(currentSortKeyPosition);
+        filterEntries(currentEntriesWith);
     }
 
     @Override
@@ -136,6 +153,21 @@ public class MainActivity extends AppCompatActivity {
 
         final Button buttonCancel = dialog.findViewById(R.id.button_dialog_filter_cancel);
         final Button buttonOk = dialog.findViewById(R.id.button_dialog_filter_ok);
+        Spinner spinnerSortBy = dialog.findViewById(R.id.spinner_sort_by);
+        Spinner spinnerEntriesWith = dialog.findViewById(R.id.spinner_entries_with);
+
+        List<String> sortBySpinnerArray = new ArrayList<>(Arrays.asList(sortingKeys));
+        List<String> entriesWithSpinnerArray = new ArrayList<>(Arrays.asList(entriesWith));
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sortBySpinnerArray);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSortBy.setAdapter(adapter);
+        spinnerSortBy.setSelection(currentSortKeyPosition);
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, entriesWithSpinnerArray);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerEntriesWith.setAdapter(adapter);
+        spinnerEntriesWith.setSelection(currentEntriesWith);
 
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,25 +183,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // fill spinners
-        List<String> sortBySpinnerArray =  new ArrayList<>();
-        sortBySpinnerArray.add("None");
-        sortBySpinnerArray.add("Alphabet");
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sortBySpinnerArray);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        Spinner sortBySpinnerItems = dialog.findViewById(R.id.spinner_sort_by);
-        sortBySpinnerItems.setAdapter(adapter);
-
-        sortBySpinnerItems.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinnerSortBy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 1) {
-                    // sorting
+                sortEntries(position);
+                currentSortKeyPosition = position;
+            }
 
-//                    Collections.sort(entries, new CustomStringComparator());
-//                    timelineAdapter.notifyDataSetChanged();
-                }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spinnerEntriesWith.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                filterEntries(position);
+                currentEntriesWith = position;
             }
 
             @Override
@@ -179,11 +210,51 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // sorting alphabetically
+    private void sortEntries(int position) {
+
+        if (sortingKeys[position].equals(sortingKeys[1]))
+            Collections.sort(MainActivity.listOfEntries, new CustomStringComparator());
+        else if (sortingKeys[position].equals(sortingKeys[2]))
+            Collections.sort(MainActivity.listOfEntries, new CustomDateComparator());
+
+        fragmentTimeline.timelineAdapter.notifyDataSetChanged();
+    }
+
+    private void filterEntries(int position) {
+        listOfEntries.clear();
+
+        if (entriesWith[position].equals(entriesWith[0]))
+            listOfEntries.addAll(listOfEntriesBackup);
+
+        else if (entriesWith[position].equals(entriesWith[1]))
+            for (Entries entry : listOfEntriesBackup)
+                if (entry.getEphoto() != null)
+                    listOfEntries.add(entry);
+
+        else if (entriesWith[position].equals(entriesWith[2]))
+            for (Entries entry1 : listOfEntriesBackup)
+                if (entry1.getEvideo() != null)
+                    listOfEntries.add(entry1);
+
+        else if (entriesWith[position].equals(entriesWith[3]))
+            for (Entries entry2 : listOfEntriesBackup)
+                if (entry2.getEaudio() != null)
+                    listOfEntries.add(entry2);
+
+        fragmentTimeline.timelineAdapter.notifyDataSetChanged();
+    }
+
     private static class CustomStringComparator implements Comparator<Entries> {
         @Override
         public int compare(Entries o1, Entries o2) {
-            return o1.getEentry().compareTo(o2.getEentry());
+            return o1.getEtitle().toLowerCase().compareTo(o2.getEtitle().toLowerCase());
+        }
+    }
+
+    private static class CustomDateComparator implements Comparator<Entries> {
+        @Override
+        public int compare(Entries o1, Entries o2) {
+            return o1.getEdate().compareTo(o2.getEdate());
         }
     }
 
