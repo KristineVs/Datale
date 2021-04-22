@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -84,6 +85,7 @@ public class DiaryActivity extends AppCompatActivity {
 
     private static final int IMAGE_PICK_CODE = 1000;
     private static final int PERMISSION_CODE = 1001;
+    public static final int CAMERA_REQUEST_CODE = 102;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,8 +199,39 @@ public class DiaryActivity extends AppCompatActivity {
             }
 
         });
+
+        //Camera
+        cam.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Check permission
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                    if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED){
+                        //permission not granted
+                        String [] permissions = {Manifest.permission.CAMERA};
+                        requestPermissions(permissions, PERMISSION_CODE);
+                    }
+                    else {
+                        openCamera();
+                    }
+                }
+                else{
+                    openCamera();
+                }
+
+            }
+        });
+
     }
 
+    //Camera
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, CAMERA_REQUEST_CODE);
+    }
+
+    //Gallery
     private void pickImageFromGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
@@ -211,7 +244,7 @@ public class DiaryActivity extends AppCompatActivity {
         switch (requestCode){
             case PERMISSION_CODE:{
                 if (grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    pickImageFromGallery();
+                    Toast.makeText(DiaryActivity.this, "Permission accepted!", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     Toast.makeText(DiaryActivity.this, "Permission denied!", Toast.LENGTH_SHORT).show();
@@ -223,6 +256,10 @@ public class DiaryActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == CAMERA_REQUEST_CODE){
+            Bitmap image = (Bitmap) data.getExtras().get("data");
+            imageView.setImageBitmap(image);
+        }
         if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE){
             imageView.setImageURI(data.getData());
 
