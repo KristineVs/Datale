@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CalendarActivity"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#00BCD4"
+        android:text="Datale"
+        android:textColor="@color/white"
+        android:textSize="100px">
+
+    </TextView>
+
+    <CalendarView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="8"
+        android:onClick="diaryentry"
+        android:id="@+id/calendar">
+
+    </CalendarView>
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:layout_weight="1"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:background="#00BCD4"-->
+<!--        >-->
+
+<!--        <Button-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1"-->
+<!--            android:background="#00BCD4"-->
+<!--            app:backgroundTint="#00FFFFFF"-->
+<!--            android:id="@+id/timeline"></Button>-->
+<!--        <Button-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1"-->
+<!--            android:background="#00BCD4"-->
+<!--            app:backgroundTint="#00FFFFFF"-->
+<!--            android:id="@+id/calendarview"></Button>-->
+<!--        <Button-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1"-->
+<!--            android:background="#00BCD4"-->
+<!--            app:backgroundTint="#00FFFFFF"-->
+<!--            android:id="@+id/addentry"></Button>-->
+<!--        <Button-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1"-->
+<!--            android:background="#00BCD4"-->
+<!--            app:backgroundTint="#00FFFFFF"-->
+<!--            android:id="@+id/map"></Button>-->
+<!--        <Button-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1"-->
+<!--            android:background="#00BCD4"-->
+<!--            app:backgroundTint="#00FFFFFF"-->
+<!--            android:id="@+id/mypage"></Button>-->
+
+<!--    </LinearLayout>-->
+
+</LinearLayout>
