@@ -1,0 +1,28 @@
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.CalendarView;
+
+public class CalendarActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_calendar);
+
+        //Access to the database, changing the color of the dates
+        //when the diary entry exists.
+
+
+    }
+
+    public void diaryentry(View view) {
+        //if click date in calendar, call diary entry of that date
+        //Intent intent = new Intent(this,DiaryActivity.class);
+        //intent.putExtra(date);
+        //startActivity(intent);
+
+    }
+}
