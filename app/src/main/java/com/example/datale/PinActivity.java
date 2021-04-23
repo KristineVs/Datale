@@ -8,7 +8,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -77,9 +76,10 @@ public class PinActivity extends AppCompatActivity {
     {
         if(p.equals(pin))
         {
-            //Intent i;
-            //i = new Intent(this, MainActivity.class);
-            //startActivity(i);
+            Intent i;
+            i = new Intent(this, MainActivity.class);
+            startActivity(i);
+            finish();
         }
         else{
             Toast toast = Toast.makeText(this.getApplicationContext(),"Wrong Pin.", Toast.LENGTH_SHORT);

@@ -73,12 +73,15 @@ public class DiaryActivity extends AppCompatActivity {
 
     FloatingActionButton main, microphone, image, cam;
     private Animation fab_open, fab_close, fab_clock, fab_anticlock;
-    Boolean isOpen= false;
+    Boolean isOpen = false;
 
     EditText editTextTitle;
     EditText editTextEntry;
 
     private boolean isRecording = false;
+
+    private int whichEntryIsEditing = -1;
+    private boolean editingEntry = false;
 
     DatabaseReference entryDbRef;
     DatabaseReference personalDbRef;
@@ -98,6 +101,39 @@ public class DiaryActivity extends AppCompatActivity {
         fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
         fab_clock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_clock);
         fab_anticlock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_anti);
+
+        mood = findViewById(R.id.editMood);
+        location = findViewById(R.id.editLocation);
+        date = findViewById(R.id.editDate);
+        microphone = findViewById(R.id.micbtn);
+
+        editTextTitle = findViewById(R.id.title_text);
+        editTextEntry = findViewById(R.id.editEntry);
+
+        mood.setText(new String(Character.toChars(currentMood)));
+
+        entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries");
+        personalDbRef = FirebaseDatabase.getInstance().getReference().child("Personal");
+
+        whichEntryIsEditing = getIntent().getIntExtra("whichEntry", -1);
+        if (whichEntryIsEditing != -1) {
+            editingEntry = true;
+            Entries currentEntry = MainActivity.listOfEntries.get(whichEntryIsEditing);
+
+            editTextTitle.setText(currentEntry.getEtitle());
+            editTextEntry.setText(currentEntry.getEentry());
+            mood.setText(new String(Character.toChars(currentEntry.getEemoji())));
+            location.setText(currentEntry.getLatitude() + ":" + currentEntry.getLongitude());
+
+            date.setText(DateFormat.getDateInstance().format(currentEntry.getEdate()));
+
+        } else {
+            // set date to date text view
+            Date currentTime = Calendar.getInstance().getTime();
+            String formattedDate = DateFormat.getDateInstance().format(currentTime);
+            currentDate = currentTime;
+            date.setText(formattedDate);
+        }
 
         main.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,25 +161,6 @@ public class DiaryActivity extends AppCompatActivity {
 
             }
         });
-
-        mood = findViewById(R.id.editMood);
-        location = findViewById(R.id.editLocation);
-        date = findViewById(R.id.editDate);
-        microphone = findViewById(R.id.micbtn);
-
-        editTextTitle = findViewById(R.id.title_text);
-        editTextEntry = findViewById(R.id.editEntry);
-
-        mood.setText(new String(Character.toChars(currentMood)));
-
-        entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries");
-        personalDbRef = FirebaseDatabase.getInstance().getReference().child("Personal");
-
-        // set date to date text view
-        Date currentTime = Calendar.getInstance().getTime();
-        String formattedDate = DateFormat.getDateInstance().format(currentTime);
-        currentDate = currentTime;
-        date.setText(formattedDate);
 
         date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,17 +199,15 @@ public class DiaryActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //Check permission
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                         //permission not granted
-                        String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
                         requestPermissions(permissions, PERMISSION_CODE);
-                    }
-                    else {
+                    } else {
                         pickImageFromGallery();
                     }
-                }
-                else{
+                } else {
                     pickImageFromGallery();
                 }
 
@@ -206,17 +221,15 @@ public class DiaryActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 //Check permission
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                    if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
                         //permission not granted
-                        String [] permissions = {Manifest.permission.CAMERA};
+                        String[] permissions = {Manifest.permission.CAMERA};
                         requestPermissions(permissions, PERMISSION_CODE);
-                    }
-                    else {
+                    } else {
                         openCamera();
                     }
-                }
-                else{
+                } else {
                     openCamera();
                 }
 
@@ -241,12 +254,11 @@ public class DiaryActivity extends AppCompatActivity {
     //handle result of permission
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
-            case PERMISSION_CODE:{
-                if (grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        switch (requestCode) {
+            case PERMISSION_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(DiaryActivity.this, "Permission accepted!", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     Toast.makeText(DiaryActivity.this, "Permission denied!", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -256,11 +268,11 @@ public class DiaryActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == CAMERA_REQUEST_CODE){
+        if (resultCode == RESULT_OK && requestCode == CAMERA_REQUEST_CODE) {
             Bitmap image = (Bitmap) data.getExtras().get("data");
             imageView.setImageBitmap(image);
         }
-        if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE){
+        if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE) {
             imageView.setImageURI(data.getData());
 
             // getting the path of the image
@@ -289,20 +301,24 @@ public class DiaryActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save_entry:
-                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+                if (whichEntryIsEditing == -1) { // save new entry
+                    Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
 
-                Entries entries = new Entries();
-                entries.setEtitle(editTextTitle.getText().toString());
-                entries.setEentry(editTextEntry.getText().toString());
-                entries.setLatitude(69);
-                entries.setLongitude(69);
-                entries.setEdate(currentDate);
-                entries.setEemoji(currentMood);
-                entries.setEphoto(currentImage);
+                    Entries entries = new Entries();
+                    entries.setEtitle(editTextTitle.getText().toString());
+                    entries.setEentry(editTextEntry.getText().toString());
+                    entries.setLatitude(69);
+                    entries.setLongitude(69);
+                    entries.setEdate(currentDate);
+                    entries.setEemoji(currentMood);
+                    entries.setEphoto(currentImage);
 
-                entryDbRef.push().setValue(entries);
+                    entryDbRef.push().setValue(entries);
 
-                finish();
+                    finish();
+                } else { // update current entry
+
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

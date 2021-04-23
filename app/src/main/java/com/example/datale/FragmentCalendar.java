@@ -30,12 +30,21 @@ public class FragmentCalendar extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Access to the database, changing the color of the dates
+        //when the diary entry exists.
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View viewFragment = inflater.inflate(R.layout.fragment_calendar, container, false);
+
+        //if click date in calendar, call diary entry of that date
+        //Intent intent = new Intent(this,DiaryActivity.class);
+        //intent.putExtra(date);
+        //startActivity(intent);
 
         return viewFragment;
     }

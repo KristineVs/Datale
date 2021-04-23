@@ -34,7 +34,7 @@ public class FragmentTimeline extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view_timeline);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        timelineAdapter = new TimelineAdapter(MainActivity.listOfEntries);
+        timelineAdapter = new TimelineAdapter(getActivity(), MainActivity.listOfEntries);
         recyclerView.setAdapter(timelineAdapter);
 
         recyclerView.setOnClickListener(new View.OnClickListener() {
