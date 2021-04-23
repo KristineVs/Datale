@@ -25,9 +25,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".PinActivity">
-            <intent-filter>
 
-            </intent-filter>
         </activity>
     </application>
 
