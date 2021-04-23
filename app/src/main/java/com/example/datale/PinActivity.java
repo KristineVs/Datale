@@ -21,7 +21,7 @@ public class PinActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pin2);
+        setContentView(R.layout.activity_pin);
 
         i1 = (ImageView) findViewById(R.id.imageview_circle1);
         i2 = (ImageView) findViewById(R.id.imageview_circle2);
