@@ -80,57 +80,122 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <Switch
-                android:id="@+id/imgswitch"
-                android:layout_width="178dp"
-                android:layout_height="21dp"
-                android:layout_marginTop="40dp"
+            <Button
+                android:id="@+id/imgbtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="40dp"
-                android:text="Gallery"
+                android:text="Allow"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/pinbtn"
                 tools:ignore="MissingConstraints" />
 
-            <Switch
-                android:id="@+id/camswitch"
-                android:layout_width="178dp"
-                android:layout_height="21dp"
-                android:layout_marginTop="40dp"
+            <TextView
+                android:id="@+id/imagetext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="68dp"
+                android:layout_marginEnd="60dp"
+                android:text="Allow Media and Files"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toStartOf="@+id/imgbtn"
+                app:layout_constraintTop_toTopOf="@id/pintext" />
+
+            <Button
+                android:id="@+id/cambtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="40dp"
-                android:text="Camera"
+                android:text="Allow"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imgswitch"
+                app:layout_constraintTop_toBottomOf="@+id/imgbtn"
                 tools:ignore="MissingConstraints" />
 
-            <Switch
-                android:id="@+id/audioswitch"
-                android:layout_width="178dp"
-                android:layout_height="21dp"
-                android:layout_marginTop="40dp"
+            <TextView
+                android:id="@+id/camtext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="68dp"
+                android:layout_marginEnd="60dp"
+                android:text="Allow Camera"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toStartOf="@+id/cambtn"
+                app:layout_constraintTop_toTopOf="@id/imagetext" />
+
+            <Button
+                android:id="@+id/audiobtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="40dp"
-                android:text="Microphone"
+                android:text="Allow"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/camswitch"
+                app:layout_constraintTop_toBottomOf="@+id/cambtn"
                 tools:ignore="MissingConstraints" />
 
-            <Switch
-                android:id="@+id/locationswitch"
-                android:layout_width="178dp"
-                android:layout_height="21dp"
-                android:layout_marginTop="40dp"
+            <TextView
+                android:id="@+id/audiotext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="68dp"
+                android:layout_marginEnd="60dp"
+                android:text="Allow Microphone"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toStartOf="@+id/audiobtn"
+                app:layout_constraintTop_toTopOf="@id/camtext" />
+
+            <Button
+                android:id="@+id/locationbtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="40dp"
-                android:text="Location"
+                android:text="Allow"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/audioswitch"
+                app:layout_constraintTop_toBottomOf="@+id/audiobtn"
                 tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:id="@+id/locationtext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="68dp"
+                android:layout_marginEnd="60dp"
+                android:text="Allow Location"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toStartOf="@+id/locationbtn"
+                app:layout_constraintTop_toTopOf="@id/audiotext" />
+
+            <Button
+                android:id="@+id/checkbtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="40dp"
+                android:text="Check"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/locationbtn"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:id="@+id/checktext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="68dp"
+                android:layout_marginEnd="60dp"
+                android:text="Check Permissions"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toStartOf="@+id/checkbtn"
+                app:layout_constraintTop_toTopOf="@id/locationtext" />
 
             <Button
                 android:id="@+id/pinbtn"
-                android:layout_width="71dp"
-                android:layout_height="39dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="36dp"
                 android:text="Change"
-                android:textSize="8sp"
                 app:layout_constraintBottom_toBottomOf="@+id/pintext"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/pintext" />

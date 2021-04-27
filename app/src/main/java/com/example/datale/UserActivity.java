@@ -13,13 +13,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
 
 public class UserActivity extends AppCompatActivity {
 
-    Switch img, cam, mic, location;
+    Button img, cam, mic, location, check;
     ImageView profile;
 
     private static final int IMAGE_PICK_CODE = 1000;
@@ -31,10 +32,11 @@ public class UserActivity extends AppCompatActivity {
         setContentView(R.layout.fragment_user);
 
         profile = findViewById(R.id.profile);
-        img = findViewById(R.id.imgswitch);
-        cam = findViewById(R.id.camswitch);
-        mic = findViewById(R.id.audioswitch);
-        location = findViewById(R.id.locationswitch);
+        img = findViewById(R.id.imgbtn);
+        cam = findViewById(R.id.cambtn);
+        mic = findViewById(R.id.audiobtn);
+        location = findViewById(R.id.locationbtn);
+        check = findViewById(R.id.checkbtn);
 
         //Profile Pic
         profile.setOnClickListener(new View.OnClickListener() {

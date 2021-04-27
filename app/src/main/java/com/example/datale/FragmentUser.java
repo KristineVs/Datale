@@ -4,11 +4,14 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -19,7 +22,7 @@ import androidx.fragment.app.Fragment;
 
 public class FragmentUser extends Fragment {
 
-    Switch img, cam, mic, location;
+    Button img, cam, mic, location, check;
     ImageView profile;
 
     private static final int IMAGE_PICK_CODE = 1000;
@@ -43,10 +46,11 @@ public class FragmentUser extends Fragment {
         View view = inflater.inflate(R.layout.activity_user, container, false);
 
         profile = view.findViewById(R.id.profile);
-        img = view.findViewById(R.id.imgswitch);
-        cam = view.findViewById(R.id.camswitch);
-        mic = view.findViewById(R.id.audioswitch);
-        location = view.findViewById(R.id.locationswitch);
+        img = view.findViewById(R.id.imgbtn);
+        cam = view.findViewById(R.id.cambtn);
+        mic = view.findViewById(R.id.audiobtn);
+        location = view.findViewById(R.id.locationbtn);
+        check = view.findViewById(R.id.checkbtn);
 
         //Profile Pic
         profile.setOnClickListener(new View.OnClickListener() {
@@ -129,6 +133,14 @@ public class FragmentUser extends Fragment {
                         requestPermissions(permissions, PERMISSION_CODE);
                     }
                 }
+            }
+        });
+
+        //Check Permissions
+        check.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:com.example.datale")), 0);
             }
         });
 
