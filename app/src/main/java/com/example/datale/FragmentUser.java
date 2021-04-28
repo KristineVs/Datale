@@ -22,17 +22,13 @@ import androidx.fragment.app.Fragment;
 
 public class FragmentUser extends Fragment {
 
-    Button img, cam, mic, location, check;
+    Button img, cam, mic, location, check, pinbtn;
     ImageView profile;
 
     private static final int IMAGE_PICK_CODE = 1000;
     private static final int PERMISSION_CODE = 1001;
 
     public FragmentUser() {
-    }
-
-    public static FragmentUser newInstance(String param1, String param2) {
-        return new FragmentUser();
     }
 
     @Override
@@ -51,6 +47,16 @@ public class FragmentUser extends Fragment {
         mic = view.findViewById(R.id.audiobtn);
         location = view.findViewById(R.id.locationbtn);
         check = view.findViewById(R.id.checkbtn);
+        pinbtn = view.findViewById(R.id.pinbtn);
+
+        pinbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), PinActivity.class);
+                intent.putExtra("setting_new_pin", true);
+                startActivity(intent);
+            }
+        });
 
         //Profile Pic
         profile.setOnClickListener(new View.OnClickListener() {

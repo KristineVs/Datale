@@ -30,9 +30,11 @@ public class PinActivity extends AppCompatActivity {
     Button[] numbers = new Button[10];
 
     String pinSHA256;
-    String userId;
+    public static String userId;
 
     String currentPinInput = "";
+
+    boolean settingPin;
 
     SharedPreferences preferences;
 
@@ -57,7 +59,7 @@ public class PinActivity extends AppCompatActivity {
         i4 = findViewById(R.id.imageview_circle4);
 
         textViewPrompt = findViewById(R.id.text_view_pin_prompt);
-        enter_mpin = (EditText) findViewById(R.id.editText_enter_mpin);
+        enter_mpin = findViewById(R.id.editText_enter_mpin);
         enter_mpin.requestFocus();
         enter_mpin.setInputType(InputType.TYPE_CLASS_NUMBER);
         enter_mpin.setFocusableInTouchMode(true);
@@ -75,6 +77,9 @@ public class PinActivity extends AppCompatActivity {
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         pinSHA256 = preferences.getString("saved_pin", "");
+        userId = preferences.getString("user_id", "");
+
+        Toast.makeText(PinActivity.this, userId, Toast.LENGTH_SHORT).show();
 
         // first time opening app
         if (pinSHA256.equals("")) {
@@ -83,6 +88,17 @@ public class PinActivity extends AppCompatActivity {
             // generate userId from date
             SimpleDateFormat currentDatetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             userId = sha256(currentDatetime.format(new Date()));
+
+            // save userId
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("user_id", userId);
+            editor.apply();
+        }
+
+        settingPin = false;
+        if (getIntent().getBooleanExtra("setting_new_pin", false)) {
+            textViewPrompt.setText("Set PIN");
+            settingPin = true;
         }
 
         enter_mpin.addTextChangedListener(new TextWatcher() {
@@ -102,12 +118,20 @@ public class PinActivity extends AppCompatActivity {
                         try {
                             i4.setImageResource(R.drawable.circle2);
                             if (pinSHA256.equals("")) {
-                                // encrypt pin and save it with userId
+                                // encrypt pin and save it
                                 SharedPreferences.Editor editor = preferences.edit();
                                 editor.putString("saved_pin", sha256(s.toString()));
                                 editor.apply();
 
                                 Login("");
+                            } else if (settingPin) {
+                                // encrypt pin and save it
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putString("saved_pin", sha256(s.toString()));
+                                editor.apply();
+
+                                Login("");
+                                Toast.makeText(PinActivity.this, "Pin set!", Toast.LENGTH_SHORT).show();
                             } else
                                 Login(sha256(s.toString()));
                         } catch (Exception e) {
