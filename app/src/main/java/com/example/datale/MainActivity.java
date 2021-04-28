@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (DatabaseException e) {
 
                 }
+                Log.d("#Sort", Integer.toString(0));
                 sortEntries(currentSortKeyPosition);
             }
 
@@ -139,6 +140,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        Log.d("#Sort", Integer.toString(1));
 
         sortEntries(currentSortKeyPosition);
         filterEntries(currentEntriesWith);
@@ -198,6 +201,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("#Dialog", "OK");
                 filterEntries(currentEntriesWith);
+                Log.d("#Sort", Integer.toString(2));
+
                 sortEntries(currentSortKeyPosition);
 
                 dialog.dismiss();
@@ -232,36 +237,46 @@ public class MainActivity extends AppCompatActivity {
 
     private void sortEntries(int position) {
 
-        if (sortingKeys[position].equals(sortingKeys[1]))
-            Collections.sort(MainActivity.listOfEntries, new CustomStringComparator());
-        else if (sortingKeys[position].equals(sortingKeys[2]))
-            Collections.sort(MainActivity.listOfEntries, new CustomDateComparator());
+        if (fragmentTimeline.timelineAdapter != null) {
+            if (sortingKeys[position].equals(sortingKeys[1]))
+                Collections.sort(MainActivity.listOfEntries, new CustomStringComparator());
+            else if (sortingKeys[position].equals(sortingKeys[2]))
+                Collections.sort(MainActivity.listOfEntries, new CustomDateComparator());
 
-        fragmentTimeline.timelineAdapter.notifyDataSetChanged();
+            // TODO sort on resume after adding
+            // TODO ikone poveci
+            // TODO save k editas entry
+            // TODO mic dialog
+
+            fragmentTimeline.timelineAdapter.notifyDataSetChanged();
+        }
     }
 
     private void filterEntries(int position) {
-        listOfEntries.clear();
+        if (fragmentTimeline.timelineAdapter != null) {
 
-        if (entriesWith[position].equals(entriesWith[0]))
-            listOfEntries.addAll(listOfEntriesBackup);
+            listOfEntries.clear();
 
-        else if (entriesWith[position].equals(entriesWith[1]))
-            for (Entries entry : listOfEntriesBackup)
-                if (entry.getEphoto() != null)
-                    listOfEntries.add(entry);
+            if (entriesWith[position].equals(entriesWith[0]))
+                listOfEntries.addAll(listOfEntriesBackup);
 
-                else if (entriesWith[position].equals(entriesWith[2]))
-                    for (Entries entry1 : listOfEntriesBackup)
-                        if (entry1.getEvideo() != null)
-                            listOfEntries.add(entry1);
+            else if (entriesWith[position].equals(entriesWith[1]))
+                for (Entries entry : listOfEntriesBackup)
+                    if (entry.getEphoto() != null)
+                        listOfEntries.add(entry);
 
-                        else if (entriesWith[position].equals(entriesWith[3]))
-                            for (Entries entry2 : listOfEntriesBackup)
-                                if (entry2.getEaudio() != null)
-                                    listOfEntries.add(entry2);
+                    else if (entriesWith[position].equals(entriesWith[2]))
+                        for (Entries entry1 : listOfEntriesBackup)
+                            if (entry1.getEvideo() != null)
+                                listOfEntries.add(entry1);
 
-        fragmentTimeline.timelineAdapter.notifyDataSetChanged();
+                            else if (entriesWith[position].equals(entriesWith[3]))
+                                for (Entries entry2 : listOfEntriesBackup)
+                                    if (entry2.getEaudio() != null)
+                                        listOfEntries.add(entry2);
+
+            fragmentTimeline.timelineAdapter.notifyDataSetChanged();
+        }
     }
 
     private static class CustomStringComparator implements Comparator<Entries> {

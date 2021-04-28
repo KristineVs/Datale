@@ -14,13 +14,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -36,15 +38,13 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -79,6 +79,11 @@ public class DiaryActivity extends AppCompatActivity {
     EditText editTextEntry;
 
     private boolean isRecording = false;
+    private String audioFileName = "";
+
+    private ImageView imageViewPlayPause;
+    private SeekBar seekBarAudio;
+    private MediaPlayer mediaPlayer;
 
     private int whichEntryIsEditing = -1;
     private boolean editingEntry = false;
@@ -107,6 +112,11 @@ public class DiaryActivity extends AppCompatActivity {
         date = findViewById(R.id.editDate);
         microphone = findViewById(R.id.micbtn);
 
+        imageViewPlayPause = findViewById(R.id.image_view_play_pause);
+        seekBarAudio = findViewById(R.id.seek_bar_audio);
+
+        mediaPlayer = new MediaPlayer();
+
         editTextTitle = findViewById(R.id.title_text);
         editTextEntry = findViewById(R.id.editEntry);
 
@@ -115,6 +125,9 @@ public class DiaryActivity extends AppCompatActivity {
         entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries");
         personalDbRef = FirebaseDatabase.getInstance().getReference().child("Personal");
 
+        imageView = findViewById(R.id.imageView);
+        image = findViewById(R.id.imagebtn);
+
         whichEntryIsEditing = getIntent().getIntExtra("whichEntry", -1);
         if (whichEntryIsEditing != -1) {
             editingEntry = true;
@@ -122,10 +135,26 @@ public class DiaryActivity extends AppCompatActivity {
 
             editTextTitle.setText(currentEntry.getEtitle());
             editTextEntry.setText(currentEntry.getEentry());
+            setSongToMediaPlayer(currentEntry.getEaudio());
             mood.setText(new String(Character.toChars(currentEntry.getEemoji())));
             location.setText(currentEntry.getLatitude() + ":" + currentEntry.getLongitude());
 
             date.setText(DateFormat.getDateInstance().format(currentEntry.getEdate()));
+
+            if (currentEntry.getEphoto() != null) {
+                currentImage = currentEntry.getEphoto();
+                if (!currentImage.equals("")) {
+
+                    // this doesnt work for some reason
+                    File imgFile = new File(currentImage);
+                    if (imgFile.exists()) {
+                        Log.d("#path", "works");
+
+                        Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                        imageView.setImageBitmap(myBitmap);
+                    }
+                }
+            }
 
         } else {
             // set date to date text view
@@ -133,6 +162,11 @@ public class DiaryActivity extends AppCompatActivity {
             String formattedDate = DateFormat.getDateInstance().format(currentTime);
             currentDate = currentTime;
             date.setText(formattedDate);
+
+            // disable play button
+            imageViewPlayPause.setEnabled(false);
+            imageViewPlayPause.setAlpha(0.5f);
+
         }
 
         main.setOnClickListener(new View.OnClickListener() {
@@ -140,23 +174,11 @@ public class DiaryActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 if (isOpen) {
-                    image.startAnimation(fab_close);
-                    cam.startAnimation(fab_close);
-                    microphone.startAnimation(fab_close);
-                    main.startAnimation(fab_anticlock);
-                    image.setClickable(false);
-                    cam.setClickable(false);
-                    microphone.setClickable(false);
-                    isOpen = false;
+                    closeTools();
+
                 } else {
-                    image.startAnimation(fab_open);
-                    cam.startAnimation(fab_open);
-                    microphone.startAnimation(fab_open);
-                    main.startAnimation(fab_clock);
-                    image.setClickable(true);
-                    cam.setClickable(true);
-                    microphone.setClickable(true);
-                    isOpen = true;
+                    openTools();
+
                 }
 
             }
@@ -188,13 +210,24 @@ public class DiaryActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 openRecordingDialog();
+                closeTools();
+            }
+        });
+
+        imageViewPlayPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mediaPlayer.isPlaying()) {
+                    playAudioFile(audioFileName);
+                    imageViewPlayPause.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_pause, null));
+                } else {
+                    mediaPlayer.pause();
+                    imageViewPlayPause.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_play, null));
+                }
             }
         });
 
         //Gallery
-        imageView = findViewById(R.id.imageView);
-        image = findViewById(R.id.imagebtn);
-
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -210,7 +243,7 @@ public class DiaryActivity extends AppCompatActivity {
                 } else {
                     pickImageFromGallery();
                 }
-
+                closeTools();
             }
 
         });
@@ -232,7 +265,7 @@ public class DiaryActivity extends AppCompatActivity {
                 } else {
                     openCamera();
                 }
-
+                closeTools();
             }
         });
 
@@ -312,6 +345,7 @@ public class DiaryActivity extends AppCompatActivity {
                     entries.setEdate(currentDate);
                     entries.setEemoji(currentMood);
                     entries.setEphoto(currentImage);
+                    entries.setEaudio(audioFileName);
 
                     entryDbRef.child(MainActivity.userId).push().setValue(entries);
 
@@ -346,61 +380,55 @@ public class DiaryActivity extends AppCompatActivity {
         imageViewMic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isRecording) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
+                        //permission not granted
+                        String[] permissions = {Manifest.permission.RECORD_AUDIO};
+                        requestPermissions(permissions, PERMISSION_CODE);
+                    } else {
+                        if (!isRecording) {
+                            fileName.setLength(0);
+                            fileName.append(getFilesDir().getAbsolutePath())
+                                    .append(File.separator)
+                                    .append(new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss", Locale.ENGLISH).format(new Date())).append(".3gp");
 
-                    fileName.setLength(0);
-                    fileName.append(getExternalFilesDir(null).getAbsolutePath())
-                            .append(File.separator)
-                            .append(new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss", Locale.ENGLISH).format(new Date())).append(".3gp");
+                            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                            mediaRecorder.setOutputFile(fileName.toString());
+                            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                            try {
+                                mediaRecorder.prepare();
+                                mediaRecorder.start();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            mediaRecorder.stop();
 
-                    mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                    mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                    mediaRecorder.setOutputFile(fileName.toString());
-                    mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-                    try {
-                        mediaRecorder.prepare();
-                        mediaRecorder.start();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                            setSongToMediaPlayer(fileName.toString());
+                        }
+
+                        isRecording = !isRecording;
+                        setRecordingStatus(textViewRecordingStatus, viewIconRecording, imageViewButtonOutline, buttonRecordingPlay, isRecording);
                     }
-                } else {
-                    mediaRecorder.stop();
                 }
-
-                isRecording = !isRecording;
-                setRecordingStatus(textViewRecordingStatus, viewIconRecording, imageViewButtonOutline, buttonRecordingPlay, isRecording);
             }
         });
 
         buttonRecordingPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MediaPlayer mediaPlayer = new MediaPlayer();
-                FileInputStream fis = null;
-                try {
-                    File directory = new File(fileName.toString());
-                    fis = new FileInputStream(directory);
-                    mediaPlayer.setDataSource(fis.getFD());
-                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (fis != null) {
-                        try {
-                            fis.close();
-                        } catch (IOException ignore) {
-                        }
-                    }
-
-                }
+                playAudioFile(fileName.toString());
             }
         });
 
         buttonRecordingSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!fileName.toString().equals("")) {
+                    audioFileName = fileName.toString();
+                    setSongToMediaPlayer(audioFileName);
+                }
                 dialog.dismiss();
                 mediaRecorder.release();
             }
@@ -559,6 +587,101 @@ public class DiaryActivity extends AppCompatActivity {
         datePickerDialog.show();
         datePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.purple_500));
         datePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.purple_500));
+    }
+
+    private void playAudioFile(String fileName) {
+        final long start = System.currentTimeMillis() - mediaPlayer.getCurrentPosition();
+        mediaPlayer.start();
+
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                while (mediaPlayer.isPlaying()) {
+                    long elapsedTimeMillis = System.currentTimeMillis() - start;
+                    int currentPositionPercent = ((int) ((float) elapsedTimeMillis / mediaPlayer.getDuration() * 100));
+                    seekBarAudio.setProgress(currentPositionPercent);
+                }
+            }
+        });
+    }
+
+    private void setSongToMediaPlayer(String fileName) {
+        try {
+            mediaPlayer = new MediaPlayer();
+            File directory = new File(fileName);
+            FileInputStream fis = new FileInputStream(directory);
+            mediaPlayer.setDataSource(fis.getFD());
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.prepare();
+
+            // enable button
+            imageViewPlayPause.setEnabled(true);
+            imageViewPlayPause.setAlpha(1f);
+
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    imageViewPlayPause.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_play, null));
+                    mediaPlayer.seekTo(0);
+                }
+            });
+
+            seekBarAudio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser) {
+                        if (mediaPlayer.isPlaying()) {
+                            imageViewPlayPause.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_play, null));
+                            mediaPlayer.pause();
+                        }
+                        mediaPlayer.seekTo((int) ((float) progress / 100f * mediaPlayer.getDuration()));
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException ignore) {
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private void openTools() {
+        image.startAnimation(fab_open);
+        cam.startAnimation(fab_open);
+        microphone.startAnimation(fab_open);
+        main.startAnimation(fab_clock);
+        image.setClickable(true);
+        cam.setClickable(true);
+        microphone.setClickable(true);
+        isOpen = true;
+    }
+
+    private void closeTools() {
+        image.startAnimation(fab_close);
+        cam.startAnimation(fab_close);
+        microphone.startAnimation(fab_close);
+        main.startAnimation(fab_anticlock);
+        image.setClickable(false);
+        cam.setClickable(false);
+        microphone.setClickable(false);
+        isOpen = false;
     }
 
     private void setRecordingStatus(TextView textViewStatus, View viewIconStatus, ImageView imageViewButtonOutline, Button buttonPlay, boolean isRecording) {

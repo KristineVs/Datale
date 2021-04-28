@@ -107,7 +107,6 @@
         android:id="@+id/editLocation"
         android:layout_width="163dp"
         android:layout_height="50dp"
-        android:layout_marginTop="16dp"
         android:background="@android:color/transparent"
         android:ems="10"
         android:hint="Location"
@@ -131,8 +130,9 @@
         android:id="@+id/editEntry"
         android:layout_width="0dp"
         android:layout_height="237dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="40dp"
         android:ems="10"
+        android:background="@null"
         android:gravity="start|top"
         android:hint="Your diary entry"
         android:inputType="textMultiLine"
@@ -140,17 +140,43 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.473"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editLocation" />
+        app:layout_constraintTop_toBottomOf="@+id/image_view_play_pause" />
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="48dp"
         android:layout_marginTop="28dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editEntry"
         app:srcCompat="@drawable/ic_image" />
+
+    <ImageView
+        android:id="@+id/image_view_play_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editLocation"
+        app:srcCompat="@drawable/ic_play" />
+
+    <SeekBar
+        android:id="@+id/seek_bar_audio"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:max="100"
+        android:min="0"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/image_view_play_pause"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/image_view_play_pause"
+        app:layout_constraintTop_toTopOf="@+id/image_view_play_pause" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
