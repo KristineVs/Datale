@@ -313,7 +313,7 @@ public class DiaryActivity extends AppCompatActivity {
                     entries.setEemoji(currentMood);
                     entries.setEphoto(currentImage);
 
-                    entryDbRef.push().setValue(entries);
+                    entryDbRef.child(MainActivity.userId).push().setValue(entries);
 
                     finish();
                 } else { // update current entry

@@ -30,7 +30,6 @@ public class PinActivity extends AppCompatActivity {
     Button[] numbers = new Button[10];
 
     String pinSHA256;
-    public static String userId;
 
     String currentPinInput = "";
 
@@ -77,26 +76,11 @@ public class PinActivity extends AppCompatActivity {
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         pinSHA256 = preferences.getString("saved_pin", "");
-        userId = preferences.getString("user_id", "");
+        String userId = preferences.getString("user_id", "");
 
-        Toast.makeText(PinActivity.this, userId, Toast.LENGTH_SHORT).show();
-
-        // first time opening app
-        if (pinSHA256.equals("")) {
-            textViewPrompt.setText("Set PIN");
-
-            // generate userId from date
-            SimpleDateFormat currentDatetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            userId = sha256(currentDatetime.format(new Date()));
-
-            // save userId
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("user_id", userId);
-            editor.apply();
-        }
-
+        // first time opening app or just setting pin
         settingPin = false;
-        if (getIntent().getBooleanExtra("setting_new_pin", false)) {
+        if (userId.equals("") || pinSHA256.equals("") || getIntent().getBooleanExtra("setting_new_pin", false)) {
             textViewPrompt.setText("Set PIN");
             settingPin = true;
         }
@@ -117,14 +101,7 @@ public class PinActivity extends AppCompatActivity {
                     case 4:
                         try {
                             i4.setImageResource(R.drawable.circle2);
-                            if (pinSHA256.equals("")) {
-                                // encrypt pin and save it
-                                SharedPreferences.Editor editor = preferences.edit();
-                                editor.putString("saved_pin", sha256(s.toString()));
-                                editor.apply();
-
-                                Login("");
-                            } else if (settingPin) {
+                            if (settingPin) {
                                 // encrypt pin and save it
                                 SharedPreferences.Editor editor = preferences.edit();
                                 editor.putString("saved_pin", sha256(s.toString()));
@@ -158,7 +135,7 @@ public class PinActivity extends AppCompatActivity {
         });
     }
 
-    public String sha256(final String base) {
+    public static String sha256(final String base) {
         try {
             final MessageDigest digest = MessageDigest.getInstance("SHA-256");
             final byte[] hash = digest.digest(base.getBytes("UTF-8"));

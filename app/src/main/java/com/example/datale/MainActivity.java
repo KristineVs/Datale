@@ -6,7 +6,9 @@ import androidx.fragment.app.FragmentManager;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,10 +28,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static ArrayList<Entries> listOfEntries = new ArrayList<>();
     public static ArrayList<Entries> listOfEntriesBackup = new ArrayList<>();
-    public static ArrayList<Entries> listOfEntriesFiltered = new ArrayList<>();
 
     String[] sortingKeys = {"None", "Alphabetically", "Date"};
     public static int currentSortKeyPosition = 0;
@@ -51,14 +54,14 @@ public class MainActivity extends AppCompatActivity {
     public static int currentEntriesWith = 0;
 
     DatabaseReference entryDbRef;
-    DatabaseReference personalDbRef;
     Entries entries;
-    User user;
 
     FragmentTimeline fragmentTimeline = new FragmentTimeline();
     FragmentCalendar fragmentCalendar = new FragmentCalendar();
     FragmentMap fragmenMap = new FragmentMap();
     FragmentUser fragmentUser = new FragmentUser();
+
+    public static String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +78,24 @@ public class MainActivity extends AppCompatActivity {
 
         switchFragmentByTag(homeFragmentTag, fragmentTags[homeFragmentTag]);
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        userId = preferences.getString("user_id", "");
+
+        if (userId.equals("")) {
+            // generate userId from date
+            SimpleDateFormat currentDatetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            userId = PinActivity.sha256(currentDatetime.format(new Date()));
+
+            // save userId
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("user_id", userId);
+            editor.apply();
+        }
+
         // retrieve entries
         entries = new Entries();
-        user = new User();
 
-        entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries");
-        personalDbRef = FirebaseDatabase.getInstance().getReference().child("Personal");
+        entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries").child(userId);
 
         entryDbRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -236,15 +251,15 @@ public class MainActivity extends AppCompatActivity {
                 if (entry.getEphoto() != null)
                     listOfEntries.add(entry);
 
-        else if (entriesWith[position].equals(entriesWith[2]))
-            for (Entries entry1 : listOfEntriesBackup)
-                if (entry1.getEvideo() != null)
-                    listOfEntries.add(entry1);
+                else if (entriesWith[position].equals(entriesWith[2]))
+                    for (Entries entry1 : listOfEntriesBackup)
+                        if (entry1.getEvideo() != null)
+                            listOfEntries.add(entry1);
 
-        else if (entriesWith[position].equals(entriesWith[3]))
-            for (Entries entry2 : listOfEntriesBackup)
-                if (entry2.getEaudio() != null)
-                    listOfEntries.add(entry2);
+                        else if (entriesWith[position].equals(entriesWith[3]))
+                            for (Entries entry2 : listOfEntriesBackup)
+                                if (entry2.getEaudio() != null)
+                                    listOfEntries.add(entry2);
 
         fragmentTimeline.timelineAdapter.notifyDataSetChanged();
     }
