@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (fragmentTimeline.timelineAdapter != null) {
                     for (Entries entry : listOfEntriesBackup) {
-                        if (entry.etitle.contains(newText)) {
+                        if (entry.etitle.toLowerCase().contains(newText.toLowerCase())) {
                             listOfEntries.add(entry);
                             Log.d("#search", entry.etitle + "");
                         }
