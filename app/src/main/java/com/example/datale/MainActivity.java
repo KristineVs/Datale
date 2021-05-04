@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Dialog;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -105,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
 
         entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries").child(userId);
 
-        showSearch();
-
         entryDbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -186,20 +186,47 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_filter, menu);
+
+        SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView search = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
+        search.setSearchableInfo(manager.getSearchableInfo(getComponentName()));
+        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.d("#search", "here");
+                listOfEntries.clear();
+
+                if (fragmentTimeline.timelineAdapter != null) {
+                    for (Entries entry : listOfEntriesBackup) {
+                        if (entry.etitle.contains(query)) {
+                            listOfEntries.add(entry);
+                            Log.d("#search", entry.etitle + "");
+                        }
+                    }
+                    fragmentTimeline.timelineAdapter.notifyDataSetChanged();
+                    Log.d("#search", "changes?");
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Log.d("search!!!!", "here");
+                return false;
+            }
+        });
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d("#search", item.getTitle().toString());
+
         switch (item.getItemId()) {
             case R.id.filter_entries:
                 Log.d("#search", "here filter");
                 showFilterDialog();
-                return true;
-            case R.id.app_bar_search:
-                Log.d("#search", "here");
-                showSearch();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -318,52 +345,6 @@ public class MainActivity extends AppCompatActivity {
 
             fragmentTimeline.timelineAdapter.notifyDataSetChanged();
         }
-    }
-
-    private void showSearch(){
-        Log.d("#search", "here");
-        final Dialog search_dialog = new Dialog(MainActivity.this);
-        search_dialog.setContentView(R.layout.search);
-        search_dialog.show();
-
-        listOfEntries.clear();
-        Log.d("#search", "here");
-        SearchView search_bar = (SearchView) findViewById(R.id.search_bar);
-        //String search_word = search_bar.getQuery().toString();
-
-        search_bar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                Log.d("#search", "here");
-
-                if (fragmentTimeline.timelineAdapter != null) {
-                    for (Entries entry : listOfEntriesBackup) {
-                        if (entry.etitle.contains(query)) {
-                            listOfEntries.add(entry);
-                            Log.d("#search", "here");
-                        }
-                    }
-                    fragmentTimeline.timelineAdapter.notifyDataSetChanged();
-                    Log.d("#search", "changes?");
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                Log.d("search!!!!", "here");
-                return false;
-            }
-            /*
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                if (search_bar.getQuery().length() == 0) {
-                    renderList(true);
-                }
-                return false;
-            }*/
-        });
-
     }
 
     private static class CustomStringComparator implements Comparator<Entries> {
