@@ -146,29 +146,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setHasFixedSize(true);
-
-        final TimelineAdapter adapter = new TimelineAdapter(getApplicationContext(), MainActivity.listOfEntries);
-        recyclerView.setAdapter(adapter);
-
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return false;
-            }
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition(); // this is how you can get the position
-                adapter.getItemId(position); // You will have your own class ofcourse.
-
-                // then you can delete the object
-                entryDbRef.child("Entries").child(entries.getEentry()).setValue(null);// setting the value to null will just delete it from the database.
-                Toast.makeText(MainActivity.this, "Entry deleted", Toast.LENGTH_SHORT).show();
-            }
-        }).attachToRecyclerView(recyclerView);
+//        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        recyclerView.setHasFixedSize(true);
+//
+//        final TimelineAdapter adapter = new TimelineAdapter(getApplicationContext(), MainActivity.listOfEntries);
+//        recyclerView.setAdapter(adapter);
+//
+//        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+//                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+//            @Override
+//            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+//                return false;
+//            }
+//            @Override
+//            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+//                int position = viewHolder.getAdapterPosition(); // this is how you can get the position
+//                adapter.getItemId(position); // You will have your own class ofcourse.
+//
+//                // then you can delete the object
+//                entryDbRef.child("Entries").child(entries.getEentry()).setValue(null);// setting the value to null will just delete it from the database.
+//                Toast.makeText(MainActivity.this, "Entry deleted", Toast.LENGTH_SHORT).show();
+//            }
+//        }).attachToRecyclerView(recyclerView);
 
     }
 
@@ -193,12 +193,16 @@ public class MainActivity extends AppCompatActivity {
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Log.d("#search", "here");
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
                 listOfEntries.clear();
 
                 if (fragmentTimeline.timelineAdapter != null) {
                     for (Entries entry : listOfEntriesBackup) {
-                        if (entry.etitle.contains(query)) {
+                        if (entry.etitle.contains(newText)) {
                             listOfEntries.add(entry);
                             Log.d("#search", entry.etitle + "");
                         }
@@ -206,12 +210,6 @@ public class MainActivity extends AppCompatActivity {
                     fragmentTimeline.timelineAdapter.notifyDataSetChanged();
                     Log.d("#search", "changes?");
                 }
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                Log.d("search!!!!", "here");
                 return false;
             }
         });
