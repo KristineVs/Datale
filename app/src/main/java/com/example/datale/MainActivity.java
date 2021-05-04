@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.SearchView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -97,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
 
         entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries").child(userId);
 
+        showSearch();
+
         entryDbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -156,9 +159,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("#search", item.getTitle().toString());
         switch (item.getItemId()) {
             case R.id.filter_entries:
+                Log.d("#search", "here filter");
                 showFilterDialog();
+                return true;
+            case R.id.app_bar_search:
+                Log.d("#search", "here");
+                showSearch();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -277,6 +286,52 @@ public class MainActivity extends AppCompatActivity {
 
             fragmentTimeline.timelineAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void showSearch(){
+        Log.d("#search", "here");
+        final Dialog search_dialog = new Dialog(MainActivity.this);
+        search_dialog.setContentView(R.layout.search);
+        search_dialog.show();
+
+        listOfEntries.clear();
+        Log.d("#search", "here");
+        SearchView search_bar = (SearchView) findViewById(R.id.search_bar);
+        //String search_word = search_bar.getQuery().toString();
+
+        search_bar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.d("#search", "here");
+
+                if (fragmentTimeline.timelineAdapter != null) {
+                    for (Entries entry : listOfEntriesBackup) {
+                        if (entry.etitle.contains(query)) {
+                            listOfEntries.add(entry);
+                            Log.d("#search", "here");
+                        }
+                    }
+                    fragmentTimeline.timelineAdapter.notifyDataSetChanged();
+                    Log.d("#search", "changes?");
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Log.d("search!!!!", "here");
+                return false;
+            }
+            /*
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (search_bar.getQuery().length() == 0) {
+                    renderList(true);
+                }
+                return false;
+            }*/
+        });
+
     }
 
     private static class CustomStringComparator implements Comparator<Entries> {
