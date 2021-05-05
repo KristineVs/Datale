@@ -52,6 +52,15 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 context.startActivity(diaryEntryIntent);
             }
         });
+
+        viewHolder.cardViewTimelineView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                MainActivity.getmInstanceActivity().showDeleteDialog();
+                return false;
+            }
+        });
+
     }
 
     @NonNull

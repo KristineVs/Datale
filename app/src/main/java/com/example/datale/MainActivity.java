@@ -2,6 +2,7 @@ package com.example.datale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -36,6 +38,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
@@ -73,10 +76,41 @@ public class MainActivity extends AppCompatActivity {
 
     public static String userId;
 
+    private static MainActivity mInstanceActivity;
+    public static MainActivity getmInstanceActivity() {
+        return mInstanceActivity;
+    }
+
+
+    public void showDeleteDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Delete");
+        builder.setMessage("Are you sure you wish to delete this entry");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                entryDbRef.child("entry").removeValue();
+                Toast.makeText(MainActivity.this, "Entry deleted",Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mInstanceActivity = this;
 
         fm = getSupportFragmentManager();
 
@@ -146,30 +180,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        recyclerView.setHasFixedSize(true);
-//
-//        final TimelineAdapter adapter = new TimelineAdapter(getApplicationContext(), MainActivity.listOfEntries);
-//        recyclerView.setAdapter(adapter);
-//
-//        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-//                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-//            @Override
-//            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-//                return false;
-//            }
-//            @Override
-//            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-//                int position = viewHolder.getAdapterPosition(); // this is how you can get the position
-//                adapter.getItemId(position); // You will have your own class ofcourse.
-//
-//                // then you can delete the object
-//                entryDbRef.child("Entries").child(entries.getEentry()).setValue(null);// setting the value to null will just delete it from the database.
-//                Toast.makeText(MainActivity.this, "Entry deleted", Toast.LENGTH_SHORT).show();
-//            }
-//        }).attachToRecyclerView(recyclerView);
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mInstanceActivity = null;
     }
 
     @Override
