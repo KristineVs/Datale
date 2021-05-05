@@ -7,7 +7,7 @@ public class Entries {
     String etitle, eentry, evideo, ephoto, eaudio;
     Date edate;
     int eemoji;
-    float latitude, longitude;
+    double latitude, longitude;
 
     public Entries() { }
 
@@ -85,19 +85,19 @@ public class Entries {
         this.edate = edate;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 }
