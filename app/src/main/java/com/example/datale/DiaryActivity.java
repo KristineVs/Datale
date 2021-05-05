@@ -45,6 +45,7 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,6 +53,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -158,7 +163,20 @@ public class DiaryActivity extends AppCompatActivity {
 
         } else {
             // set date to date text view
-            Date currentTime = Calendar.getInstance().getTime();
+            Date currentTime;
+//            Log.i("test",this.getIntent().getStringExtra("date",));
+                String dateParams = this.getIntent().getStringExtra("date");
+            if(dateParams == null || dateParams.isEmpty() ) {
+                currentTime = Calendar.getInstance().getTime();
+            } else {
+                LocalDate dateParam = LocalDate.parse(dateParams
+                        , DateTimeFormatter.ofPattern("uuuu-M-d"));
+                currentTime = Date.from(dateParam.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            }
+
+
+
+//            Date currentTime = Calendar.getInstance().getTime();
             String formattedDate = DateFormat.getDateInstance().format(currentTime);
             currentDate = currentTime;
             date.setText(formattedDate);

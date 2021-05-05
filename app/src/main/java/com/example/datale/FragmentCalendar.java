@@ -1,6 +1,7 @@
 package com.example.datale;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,10 +21,14 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.DayViewDecorator;
+import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
 public class FragmentCalendar extends Fragment {
 
@@ -53,20 +58,53 @@ public class FragmentCalendar extends Fragment {
 
         View viewFragment = inflater.inflate(R.layout.fragment_calendar, container, false);
         materialCalendarView = viewFragment.findViewById(R.id.calendarView);
-        MainActivity.listOfEntries.forEach(entries -> {
 
-            LocalDate localDate = entries.getEdate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            CalendarDay calendar = CalendarDay.from(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
-                    materialCalendarView.setDateSelected(calendar, true);
+
+
+        materialCalendarView.addDecorator(new DayViewDecorator() {
+            @Override
+            public boolean shouldDecorate(CalendarDay day) {
+                for (Entries entries : MainActivity.listOfEntries) {
+                    LocalDate localDate = entries.getEdate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    CalendarDay calendar = CalendarDay.from(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
+//                            materialCalendarView.setDateSelected(calendar, true);
+                    if (day.equals(calendar)) {
+                        return true;
+                    }
                 }
-        );
-        materialCalendarView.setSelectionMode(MaterialCalendarView.SELECTION_MODE_MULTIPLE);
+                return false;
+            }
+
+
+
+            @Override
+            public void decorate(DayViewFacade view) {
+                view.addSpan(new DotSpan(5, Color.CYAN));
+            }
+        });
+
+
+//        MainActivity.listOfEntries.forEach(entries -> {
+//
+//            LocalDate localDate = entries.getEdate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+//            CalendarDay calendar = CalendarDay.from(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
+//                    materialCalendarView.setDateSelected(calendar, true);
+//                }
+//        );
+        materialCalendarView.setSelectionMode(MaterialCalendarView.SELECTION_MODE_SINGLE);
+        materialCalendarView.setOnDateLongClickListener((widget, date) -> {
+           Log.i("test", "" + date.toString());
+
+            Intent diaryEntryIntent = new Intent(this.getContext(), DiaryActivity.class);
+            diaryEntryIntent.putExtra("date", date.getYear() + "-" + date.getMonth() + "-" +  date.getDay());
+            this.getContext().startActivity(diaryEntryIntent);
+        });
 
 
         //if click date in calendar, call diary entry of that date
-        //Intent intent = new Intent(this,DiaryActivity.class);
-        //intent.putExtra(date);
-        //startActivity(intent);
+//        Intent intent = new Intent(this,DiaryActivity.class);
+//        intent.putExtra(date);
+//        startActivity(intent);
 
         return viewFragment;
     }
