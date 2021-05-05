@@ -5,10 +5,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,6 +19,8 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -38,10 +43,17 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -55,14 +67,25 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 
-public class DiaryActivity extends AppCompatActivity {
+public class DiaryActivity extends AppCompatActivity{
 
     TextView date;
     Date currentDate;
 
-    TextView location;
+    TextView locationText;
+    LatLng location;
+    Double locationLat;
+    Double locationLong;
+    Geocoder geocoder;
+    List<Address> addresses;
+    Context c = this;
+    String address;
+    SearchView searchView;
+    List<Address> addressList;
+    GoogleMap map;
 
     ImageView imageView;
     String currentImage;
@@ -94,6 +117,8 @@ public class DiaryActivity extends AppCompatActivity {
     private static final int IMAGE_PICK_CODE = 1000;
     private static final int PERMISSION_CODE = 1001;
     public static final int CAMERA_REQUEST_CODE = 102;
+    private GoogleMap googleMap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +133,7 @@ public class DiaryActivity extends AppCompatActivity {
         fab_anticlock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_anti);
 
         mood = findViewById(R.id.editMood);
-        location = findViewById(R.id.editLocation);
+        locationText = findViewById(R.id.editLocation);
         date = findViewById(R.id.editDate);
         microphone = findViewById(R.id.micbtn);
 
@@ -137,7 +162,17 @@ public class DiaryActivity extends AppCompatActivity {
             editTextEntry.setText(currentEntry.getEentry());
             setSongToMediaPlayer(currentEntry.getEaudio());
             mood.setText(new String(Character.toChars(currentEntry.getEemoji())));
-            location.setText(currentEntry.getLatitude() + ":" + currentEntry.getLongitude());
+            geocoder = new Geocoder(c, Locale.getDefault());
+            try {
+                addresses = geocoder.getFromLocation(currentEntry.getLatitude(), currentEntry.getLongitude(), 1);
+                address = addresses.get(0).getAddressLine(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            locationText.setText(address);
+            //locationText.setText(currentEntry.getLatitude() + ":" + currentEntry.getLongitude());
 
             date.setText(DateFormat.getDateInstance().format(currentEntry.getEdate()));
 
@@ -191,10 +226,12 @@ public class DiaryActivity extends AppCompatActivity {
             }
         });
 
-        location.setOnClickListener(new View.OnClickListener() {
+        locationText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openLocationDialog();
+                //Intent intent = new Intent(DiaryActivity.this, SearchLocation.class);
+                //startActivity(intent);
             }
         });
 
@@ -340,8 +377,8 @@ public class DiaryActivity extends AppCompatActivity {
                     Entries entries = new Entries();
                     entries.setEtitle(editTextTitle.getText().toString());
                     entries.setEentry(editTextEntry.getText().toString());
-                    entries.setLatitude(69);
-                    entries.setLongitude(69);
+                    entries.setLatitude(locationLat);
+                    entries.setLongitude(locationLong);
                     entries.setEdate(currentDate);
                     entries.setEemoji(currentMood);
                     entries.setEphoto(currentImage);
@@ -555,6 +592,69 @@ public class DiaryActivity extends AppCompatActivity {
         final Button buttonOk = dialog.findViewById(R.id.button_dialog_location_ok);
         final EditText editTextSearch = dialog.findViewById(R.id.edit_text_dialog_location);
 
+        searchView = dialog.findViewById(R.id.searchLocation);
+
+        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.dialogMap);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                String addressName = searchView.getQuery().toString();
+                List<Address> addressList = null;
+
+                if (addressName != null || addressName.equals("")) {
+                    Geocoder geocoder = new Geocoder(DiaryActivity.this);
+                    try {
+                        addressList = geocoder.getFromLocationName(addressName, 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Address address = addressList.get(0);
+                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                    map.addMarker(new MarkerOptions().position(latLng).title(addressName));
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                    locationLat = latLng.latitude;
+                    locationLong = latLng.longitude;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                map.clear();
+                return false;
+            }
+        });
+
+        supportMapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                map = googleMap;
+                googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng latLng) {
+                        MarkerOptions locationSelected = new MarkerOptions();
+
+                        locationSelected.position(latLng);
+
+                        locationSelected.title(latLng.latitude + " : " + latLng.longitude);
+
+                        googleMap.clear();
+
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+
+                        googleMap.addMarker(locationSelected);
+
+                        locationLat = latLng.latitude;
+                        locationLong = latLng.longitude;
+                    }
+                });
+
+            }
+
+        });
+
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -565,7 +665,18 @@ public class DiaryActivity extends AppCompatActivity {
         buttonOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(DiaryActivity.this, editTextSearch.getText().toString(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(DiaryActivity.this, editTextSearch.getText().toString(), Toast.LENGTH_SHORT).show();
+                location = new LatLng(locationLat, locationLong);
+                geocoder = new Geocoder(c, Locale.getDefault());
+                try {
+                    addresses = geocoder.getFromLocation(locationLat, locationLong, 1);
+                    address = addresses.get(0).getAddressLine(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+                locationText.setText(address);
                 dialog.dismiss();
             }
         });
@@ -573,6 +684,40 @@ public class DiaryActivity extends AppCompatActivity {
         Window window = dialog.getWindow();
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
     }
+
+
+        /*searchView = dialog.findViewById(R.id.searchLocation);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.dialogMap);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                String location = searchView.getQuery().toString();
+                List<Address> addressList = null;
+
+                if (location != null || !location.equals("")) {
+                    Geocoder geocoder = new Geocoder(DiaryActivity.this);
+                    try {
+                        addressList = geocoder.getFromLocationName(location, 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Address address = addressList.get(1);
+                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                    map.addMarker(new MarkerOptions().position(latLng).title(location));
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        mapFragment.getMapAsync(this);*/
+
+
 
     private void openDateDialog() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(DiaryActivity.this, R.style.DialogTheme, new DatePickerDialog.OnDateSetListener() {

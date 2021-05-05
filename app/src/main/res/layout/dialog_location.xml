@@ -24,12 +24,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <View
-        android:id="@+id/linear_layout_emoji"
-        android:layout_width="match_parent"
+    <fragment
+        android:id="@+id/dialogMap"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="0dp"
         android:layout_height="500dp"
-        android:background="#eeeeee"
-        app:layout_constraintBottom_toTopOf="@id/button_dialog_location_ok"
+        app:layout_constraintBottom_toTopOf="@+id/button_dialog_location_ok"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_icon_recording" />
@@ -40,14 +40,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
         android:background="?android:attr/selectableItemBackground"
         android:text="OK"
         android:textColor="@color/purple_500"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linear_layout_emoji" />
+        app:layout_constraintTop_toBottomOf="@id/dialogMap" />
 
     <Button
         android:id="@+id/button_dialog_location_cancel"
@@ -59,33 +57,16 @@
         app:layout_constraintEnd_toStartOf="@+id/button_dialog_location_ok"
         app:layout_constraintTop_toTopOf="@+id/button_dialog_location_ok" />
 
-    <ImageView
-        android:id="@+id/image_view_dialog_location_search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:padding="8dp"
+    <SearchView
+        android:id="@+id/searchLocation"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:queryHint="Search Location"
+        android:elevation="5dp"
+        android:iconifiedByDefault="false"
         app:layout_constraintBottom_toBottomOf="@+id/view3"
         app:layout_constraintEnd_toEndOf="@+id/view3"
-        app:layout_constraintTop_toTopOf="@+id/view3"
-        app:srcCompat="@drawable/ic_search" />
-
-    <EditText
-        android:id="@+id/edit_text_dialog_location"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@android:color/transparent"
-        android:ems="10"
-        android:hint="Search location"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="@+id/view3"
-        app:layout_constraintEnd_toStartOf="@+id/image_view_dialog_location_search"
         app:layout_constraintStart_toStartOf="@+id/view3"
         app:layout_constraintTop_toTopOf="@+id/view3" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

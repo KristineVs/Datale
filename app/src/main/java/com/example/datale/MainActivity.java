@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     FragmentCalendar fragmentCalendar = new FragmentCalendar();
     FragmentMap fragmenMap = new FragmentMap();
     FragmentUser fragmentUser = new FragmentUser();
+    Bundle bundle = new Bundle();
 
     public static String userId;
 
@@ -104,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
 
         // retrieve entries
         entries = new Entries();
+        bundle.putString("userid",userId);
+        fragmenMap.setArguments(bundle);
 
         entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries").child(userId);
 
