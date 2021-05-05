@@ -72,6 +72,8 @@ import java.util.Locale;
 
 public class DiaryActivity extends AppCompatActivity{
 
+    Dialog dialog;
+
     TextView date;
     Date currentDate;
 
@@ -125,6 +127,8 @@ public class DiaryActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.diary_entry);
 
+        dialog = new Dialog(DiaryActivity.this);
+        dialog.setContentView(R.layout.dialog_location);
         main = findViewById(R.id.main);
         cam = findViewById(R.id.cambtn);
         fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
@@ -583,8 +587,7 @@ public class DiaryActivity extends AppCompatActivity{
     }
 
     private void openLocationDialog() {
-        final Dialog dialog = new Dialog(DiaryActivity.this);
-        dialog.setContentView(R.layout.dialog_location);
+
 
         dialog.show();
 

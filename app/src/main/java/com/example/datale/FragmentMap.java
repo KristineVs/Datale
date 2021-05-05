@@ -1,6 +1,8 @@
 package com.example.datale;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -24,6 +26,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -40,9 +43,14 @@ public class FragmentMap extends Fragment {
 
     DatabaseReference entryDbRef;
     DatabaseReference personalDbRef;
-    String userid = "";
-    int whichEntryIsEditing = -1;
-    public static ArrayList<Entries> listOfEntries = new ArrayList<>();
+    int init = 0;
+    int length = 0;
+    ArrayList<MarkerOptions> markers = new ArrayList<MarkerOptions>();
+    ArrayList<LatLng> coordinates = new ArrayList<LatLng>();
+    GoogleMap map;
+    Context context;
+    int position = -1;
+
 
 
     public static FragmentMap newInstance(String param1, String param2) {
@@ -52,18 +60,7 @@ public class FragmentMap extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*userid = getArguments().getString("userid");
 
-        entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries").child(userid);
-        personalDbRef = FirebaseDatabase.getInstance().getReference().child("Personal");
-
-        whichEntryIsEditing = preferences.getString("user_id", "");
-        if (whichEntryIsEditing != -1) {
-            //editingEntry = true;
-            Entries currentEntry = MainActivity.listOfEntries.get(whichEntryIsEditing);
-
-            editTextTitle.setText(currentEntry.getEtitle());
-        }*/
     }
 
     @Override
@@ -71,32 +68,80 @@ public class FragmentMap extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
+
+        length = MainActivity.listOfEntries.size();
+
+
+        for( int i = 0; i < length; i++) {
+            markers.add(new MarkerOptions());
+            coordinates.add(new LatLng(MainActivity.listOfEntries.get(i).getLatitude(), MainActivity.listOfEntries.get(i).getLongitude()));
+        }
+
+
+
+
         SupportMapFragment supportMapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.googelMap);
 
         supportMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
-                googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                map = googleMap;
+                init++;
+                for( int i = 0; i < length; i++){
+
+                    markers.get(i).position(coordinates.get(i));
+                    markers.get(i).title(MainActivity.listOfEntries.get(i).getEtitle());
+                    googleMap.addMarker(markers.get(i));
+
+                }
+                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
-                    public void onMapClick(LatLng latLng) {
-                        MarkerOptions markerOptions = new MarkerOptions();
+                    public void onInfoWindowClick(Marker marker) {
+                        for(int i = 0; i < length; i++){
+                            if(marker.getPosition().equals(markers.get(i).getPosition()) ){
+                                position = i;
+                            }
+                        }
 
-                        markerOptions.position(latLng);
+                        Intent diaryEntryIntent = new Intent(getActivity(), DiaryActivity.class);
+                        diaryEntryIntent.putExtra("whichEntry", position);
+                        getActivity().startActivity(diaryEntryIntent);
 
-                        markerOptions.title(latLng.latitude + " : " + latLng.longitude);
-
-                        googleMap.clear();
-
-                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
-
-                        googleMap.addMarker(markerOptions);
                     }
                 });
+
             }
 
         });
         return view;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (init > 0){
+            refresh();
+        }
+    }
+
+    private void refresh(){
+        length = MainActivity.listOfEntries.size();
+
+        markers.clear();
+        coordinates.clear();
+
+        if(map != null){
+            map.clear();
+        }
+
+        for( int i = 0; i < length; i++) {
+            markers.add(new MarkerOptions());
+            coordinates.add(new LatLng(MainActivity.listOfEntries.get(i).getLatitude(), MainActivity.listOfEntries.get(i).getLongitude()));
+            markers.get(i).position(coordinates.get(i));
+            markers.get(i).title(MainActivity.listOfEntries.get(i).getEtitle());
+            map.addMarker(markers.get(i));
+        }
     }
 
     /*@Override
