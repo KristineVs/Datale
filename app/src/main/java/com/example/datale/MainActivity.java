@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<Entries> listOfEntries = new ArrayList<>();
     public static ArrayList<Entries> listOfEntriesBackup = new ArrayList<>();
 
-    String[] sortingKeys = {"None", "Alphabetically", "Date"};
+    String[] sortingKeys = {"Added date", "Alphabetically", "Date"};
     public static int currentSortKeyPosition = 0;
 
     String[] entriesWith = {"Anything", "Image", "Video", "Voice"};
@@ -78,10 +78,10 @@ public class MainActivity extends AppCompatActivity {
     public static String userId;
 
     private static MainActivity mInstanceActivity;
+
     public static MainActivity getmInstanceActivity() {
         return mInstanceActivity;
     }
-
 
     public void showDeleteDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 entryDbRef.child("entry").removeValue();
-                Toast.makeText(MainActivity.this, "Entry deleted",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Entry deleted", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -127,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
         userId = preferences.getString("user_id", "");
 
         if (userId.equals("")) {
+
+
             // generate userId from date
             SimpleDateFormat currentDatetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             userId = PinActivity.sha256(currentDatetime.format(new Date()));
@@ -135,11 +137,21 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("user_id", userId);
             editor.apply();
+
+            Entries entries = new Entries();
+            entries.setEtitle("Sample entry");
+            entries.setEdate(new Date());
+            entries.setEentry("This is a sample entry to show the user how the app works!");
+
+            entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries").child(userId);
+
+            entryDbRef.push().setValue(entries);
+
         }
 
         // retrieve entries
         entries = new Entries();
-        bundle.putString("userid",userId);
+        bundle.putString("userid", userId);
         fragmenMap.setArguments(bundle);
 
         entryDbRef = FirebaseDatabase.getInstance().getReference().child("Entries").child(userId);
@@ -310,7 +322,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 currentEntriesWith = position;
-
             }
 
             @Override
@@ -327,11 +338,6 @@ public class MainActivity extends AppCompatActivity {
                 Collections.sort(MainActivity.listOfEntries, new CustomStringComparator());
             else if (sortingKeys[position].equals(sortingKeys[2]))
                 Collections.sort(MainActivity.listOfEntries, new CustomDateComparator());
-
-            // TODO sort on resume after adding
-            // TODO ikone poveci
-            // TODO save k editas entry
-            // TODO mic dialog
 
             fragmentTimeline.timelineAdapter.notifyDataSetChanged();
         }

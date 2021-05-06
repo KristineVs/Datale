@@ -3,15 +3,26 @@ package com.example.datale;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -20,10 +31,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class FragmentUser extends Fragment {
 
     Button img, cam, mic, location, check, pinbtn;
     ImageView profile;
+    EditText description;
+
+    SharedPreferences preferences;
 
     private static final int IMAGE_PICK_CODE = 1000;
     private static final int PERMISSION_CODE = 1001;
@@ -48,6 +66,22 @@ public class FragmentUser extends Fragment {
         location = view.findViewById(R.id.locationbtn);
         check = view.findViewById(R.id.checkbtn);
         pinbtn = view.findViewById(R.id.pinbtn);
+        description = view.findViewById(R.id.description);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        description.setText(preferences.getString("user_desc", ""));
+
+        String profilePicUrl = preferences.getString("user_pic", "");
+        if (!profilePicUrl.equals("")) {
+            File imgFile = new File(profilePicUrl);
+            if (imgFile.exists()) {
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                Matrix matrix = new Matrix();
+                matrix.postRotate(270);
+                profile.setImageBitmap(Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true));
+            }
+        }
 
         pinbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,6 +184,25 @@ public class FragmentUser extends Fragment {
             }
         });
 
+        description.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString("user_desc", s.toString());
+                editor.apply();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         return view;
     }
 
@@ -181,6 +234,21 @@ public class FragmentUser extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_CODE){
             profile.setImageURI(data.getData());
+
+            // getting the path of the image
+            String path = "";
+            if (getActivity().getContentResolver() != null) {
+                Cursor cursor = getActivity().getContentResolver().query(data.getData(), null, null, null, null);
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                    path = cursor.getString(idx);
+                    cursor.close();
+                }
+            }
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("user_pic", path);
+            editor.apply();
         }
     }
 }

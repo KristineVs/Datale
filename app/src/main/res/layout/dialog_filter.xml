@@ -43,7 +43,7 @@
         android:id="@+id/edit_text_dialog_location"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Filter by"
+        android:text="Filter/Sort by"
         android:layout_marginLeft="16dp"
         android:textColor="@color/white"
         android:textStyle="bold"
@@ -74,27 +74,6 @@
         app:layout_constraintTop_toTopOf="@+id/textView" />
 
     <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="Continent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-    <Spinner
-        android:id="@+id/spinner_continent"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/spinner_sort_by"
-        app:layout_constraintTop_toTopOf="@+id/textView1" />
-
-    <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -102,7 +81,7 @@
         android:layout_marginTop="16dp"
         android:text="Entries with"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView1" />
+        app:layout_constraintTop_toBottomOf="@+id/spinner_sort_by" />
 
     <Spinner
         android:id="@+id/spinner_entries_with"

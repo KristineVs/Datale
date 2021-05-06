@@ -821,7 +821,7 @@ public class DiaryActivity extends AppCompatActivity{
                 } catch (IOException ignore) {
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
