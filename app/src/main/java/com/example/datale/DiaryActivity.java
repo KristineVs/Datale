@@ -84,8 +84,8 @@ public class DiaryActivity extends AppCompatActivity{
 
     TextView locationText;
     LatLng location;
-    Double locationLat;
-    Double locationLong;
+    Double locationLat = 0.0;
+    Double locationLong = 0.0;
     Geocoder geocoder;
     List<Address> addresses;
     Context c = this;
@@ -178,7 +178,6 @@ public class DiaryActivity extends AppCompatActivity{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
 
             locationText.setText(address);
             //locationText.setText(currentEntry.getLatitude() + ":" + currentEntry.getLongitude());
@@ -581,7 +580,7 @@ public class DiaryActivity extends AppCompatActivity{
 
                 // text emoji count
                 textViewEmojiCount.setId(2000 + j * i + j);
-                textViewEmojiCount.setText("0");
+                textViewEmojiCount.setText("");
 
                 textEmojisCountConstraints.topToTop = constraintLayout.getId();
                 textEmojisCountConstraints.startToStart = constraintLayout.getId();

@@ -51,8 +51,6 @@ public class FragmentMap extends Fragment {
     Context context;
     int position = -1;
 
-
-
     public static FragmentMap newInstance(String param1, String param2) {
         return new FragmentMap();
     }
@@ -68,20 +66,17 @@ public class FragmentMap extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
+        for( int i = 0; i < MainActivity.listOfEntries.size(); i++) {
 
-        length = MainActivity.listOfEntries.size();
-
-
-        for( int i = 0; i < length; i++) {
-            markers.add(new MarkerOptions());
-            coordinates.add(new LatLng(MainActivity.listOfEntries.get(i).getLatitude(), MainActivity.listOfEntries.get(i).getLongitude()));
+            if (MainActivity.listOfEntries.get(i).getLongitude() != 0.0 && MainActivity.listOfEntries.get(i).getLatitude() != 0.0) {
+                coordinates.add(new LatLng(MainActivity.listOfEntries.get(i).getLatitude(), MainActivity.listOfEntries.get(i).getLongitude()));
+                markers.add(new MarkerOptions());
+            }
         }
 
+        length = coordinates.size();
 
-
-
-        SupportMapFragment supportMapFragment = (SupportMapFragment)
-                getChildFragmentManager().findFragmentById(R.id.googelMap);
+        SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.googelMap);
 
         supportMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
