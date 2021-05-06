@@ -75,7 +75,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
-public class DiaryActivity extends AppCompatActivity{
+public class DiaryActivity extends AppCompatActivity {
 
     Dialog dialog;
 
@@ -162,6 +162,10 @@ public class DiaryActivity extends AppCompatActivity{
         imageView = findViewById(R.id.imageView);
         image = findViewById(R.id.imagebtn);
 
+        // disable play button
+        imageViewPlayPause.setEnabled(false);
+        imageViewPlayPause.setAlpha(0.5f);
+
         whichEntryIsEditing = getIntent().getIntExtra("whichEntry", -1);
         if (whichEntryIsEditing != -1) {
             editingEntry = true;
@@ -202,9 +206,8 @@ public class DiaryActivity extends AppCompatActivity{
         } else {
             // set date to date text view
             Date currentTime;
-//            Log.i("test",this.getIntent().getStringExtra("date",));
-                String dateParams = this.getIntent().getStringExtra("date");
-            if(dateParams == null || dateParams.isEmpty() ) {
+            String dateParams = this.getIntent().getStringExtra("date");
+            if (dateParams == null || dateParams.isEmpty()) {
                 currentTime = Calendar.getInstance().getTime();
             } else {
                 LocalDate dateParam = LocalDate.parse(dateParams
@@ -212,17 +215,9 @@ public class DiaryActivity extends AppCompatActivity{
                 currentTime = Date.from(dateParam.atStartOfDay(ZoneId.systemDefault()).toInstant());
             }
 
-
-
-//            Date currentTime = Calendar.getInstance().getTime();
             String formattedDate = DateFormat.getDateInstance().format(currentTime);
             currentDate = currentTime;
             date.setText(formattedDate);
-
-            // disable play button
-            imageViewPlayPause.setEnabled(false);
-            imageViewPlayPause.setAlpha(0.5f);
-
         }
 
         main.setOnClickListener(new View.OnClickListener() {
@@ -616,7 +611,7 @@ public class DiaryActivity extends AppCompatActivity{
 
         SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.dialogMap);
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
             @Override
             public boolean onQueryTextSubmit(String query) {

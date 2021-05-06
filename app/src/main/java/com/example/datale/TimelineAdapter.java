@@ -26,6 +26,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
     private final ArrayList<Entries> diaryEntries;
     private Context context;
 
+    public static int whichToDelete = -1;
+
     public TimelineAdapter(Context context, ArrayList<Entries>  diaryEntries) {
         this.context = context;
         this.diaryEntries = diaryEntries;
@@ -56,6 +58,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
         viewHolder.cardViewTimelineView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                whichToDelete = position;
                 MainActivity.getmInstanceActivity().showDeleteDialog();
                 return false;
             }

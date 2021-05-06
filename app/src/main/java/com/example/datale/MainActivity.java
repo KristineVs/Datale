@@ -90,8 +90,25 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                entryDbRef.child("entry").removeValue();
+//                entryDbRef.child("entry").removeValue();
                 Toast.makeText(MainActivity.this, "Entry deleted", Toast.LENGTH_SHORT).show();
+
+                entryDbRef = FirebaseDatabase.getInstance().getReference();
+                Query applesQuery = entryDbRef.child("Entries").child(userId).orderByChild("etitle").equalTo(listOfEntries.get(TimelineAdapter.whichToDelete).getEtitle());
+
+                applesQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot appleSnapshot : dataSnapshot.getChildren()) {
+                            appleSnapshot.getRef().removeValue();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+//                        Log.e(TAG, "onCancelled", databaseError.toException());
+                    }
+                });
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
