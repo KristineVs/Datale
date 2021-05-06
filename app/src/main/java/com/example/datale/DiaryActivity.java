@@ -175,7 +175,7 @@ public class DiaryActivity extends AppCompatActivity{
             try {
                 addresses = geocoder.getFromLocation(currentEntry.getLatitude(), currentEntry.getLongitude(), 1);
                 address = addresses.get(0).getAddressLine(0);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -691,7 +691,7 @@ public class DiaryActivity extends AppCompatActivity{
                 try {
                     addresses = geocoder.getFromLocation(locationLat, locationLong, 1);
                     address = addresses.get(0).getAddressLine(0);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -737,17 +737,18 @@ public class DiaryActivity extends AppCompatActivity{
         });
         mapFragment.getMapAsync(this);*/
 
-
-
     private void openDateDialog() {
+        Date todayDate = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(todayDate);
         DatePickerDialog datePickerDialog = new DatePickerDialog(DiaryActivity.this, R.style.DialogTheme, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                Date currentDateDialog = new GregorianCalendar(year, month - 1, dayOfMonth).getTime();
+                Date currentDateDialog = new GregorianCalendar(year, month, dayOfMonth).getTime();
                 currentDate = currentDateDialog;
                 date.setText(DateFormat.getDateInstance().format(currentDateDialog));
             }
-        }, 2021, 2, 2);
+        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
 
         datePickerDialog.show();
         datePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.purple_500));

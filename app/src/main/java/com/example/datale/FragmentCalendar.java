@@ -9,7 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +30,7 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
 public class FragmentCalendar extends Fragment {
@@ -59,8 +62,6 @@ public class FragmentCalendar extends Fragment {
         View viewFragment = inflater.inflate(R.layout.fragment_calendar, container, false);
         materialCalendarView = viewFragment.findViewById(R.id.calendarView);
 
-
-
         materialCalendarView.addDecorator(new DayViewDecorator() {
             @Override
             public boolean shouldDecorate(CalendarDay day) {
@@ -79,7 +80,7 @@ public class FragmentCalendar extends Fragment {
 
             @Override
             public void decorate(DayViewFacade view) {
-                view.addSpan(new DotSpan(5, Color.CYAN));
+                view.addSpan(new DotSpan(10, getContext().getResources().getColor(R.color.colorPrimary)));
             }
         });
 
@@ -92,12 +93,29 @@ public class FragmentCalendar extends Fragment {
 //                }
 //        );
         materialCalendarView.setSelectionMode(MaterialCalendarView.SELECTION_MODE_SINGLE);
-        materialCalendarView.setOnDateLongClickListener((widget, date) -> {
-           Log.i("test", "" + date.toString());
+//        materialCalendarView.setOnDateLongClickListener((widget, date) -> {
+//           Log.i("test", "" + date.toString());
+//
+//            Intent diaryEntryIntent = new Intent(this.getContext(), DiaryActivity.class);
+//            diaryEntryIntent.putExtra("date", date.getYear() + "-" + date.getMonth() + "-" +  date.getDay());
+//            this.getContext().startActivity(diaryEntryIntent);
+//        });
 
-            Intent diaryEntryIntent = new Intent(this.getContext(), DiaryActivity.class);
-            diaryEntryIntent.putExtra("date", date.getYear() + "-" + date.getMonth() + "-" +  date.getDay());
-            this.getContext().startActivity(diaryEntryIntent);
+        materialCalendarView.setOnDateChangedListener(new OnDateSelectedListener() {
+            @Override
+            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+                for (int i = 0; i < MainActivity.listOfEntries.size(); i++) {
+                    Date entryDate = MainActivity.listOfEntries.get(i).getEdate();
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(entryDate);
+                    if (date.getDay() == cal.get(Calendar.DAY_OF_MONTH) && date.getMonth() == (cal.get(Calendar.MONTH)+1) && date.getYear() == cal.get(Calendar.YEAR)) {
+                        Intent diaryEntryIntent = new Intent(getContext(), DiaryActivity.class);
+                        diaryEntryIntent.putExtra("whichEntry", i);
+                        getContext().startActivity(diaryEntryIntent);
+                        break;
+                    }
+                }
+            }
         });
 
 
